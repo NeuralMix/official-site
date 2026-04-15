@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're In! — NeuralMix Waitlist</title>
+  <meta name="description" content="You're on the NeuralMix waitlist! Share your unique link to skip the line and get early access faster.">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://neuralmix.com/success.html">
+  <meta property="og:title" content="I'm #1,247 in line for NeuralMix — AI Co-Pilot for Music Mixing">
+  <meta property="og:description" content="Join me on the NeuralMix waitlist and help me skip the line!">
+  <meta property="og:image" content="https://neuralmix.com/og-image.jpg">
+  
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="I'm #1,247 in line for NeuralMix">
+  <meta property="twitter:description" content="Join me on the NeuralMix waitlist and help me skip the line!">
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%233b82f6'/><path d='M25 70 L25 30 L40 55 L55 20 L70 50 L75 30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #070b14;
+      --bg-secondary: #0d1526;
+      --bg-tertiary: #111b2e;
+      --surface: rgba(255,255,255,0.03);
+      --surface-hover: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --border-accent: rgba(59,130,246,0.3);
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-blue: #3b82f6;
+      --accent-blue-dark: #1d4ed8;
+      --accent-cyan: #06b6d4;
+      --accent-cyan-light: #67e8f9;
+      
+      --success: #10b981;
+      --warning: #f59e0b;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.5);
+      --shadow-glow: 0 0 60px rgba(59,130,246,0.15);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .success-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 48px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .success-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1));
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .success-icon svg {
+      width: 36px;
+      height: 36px;
+      stroke: var(--success);
+      fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .success-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .position-display {
+      font-size: 56px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1;
+      margin: 16px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .success-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+
+    .progress-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--surface-hover);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: var(--radius-full);
+      transition: width 1s ease-out;
+      width: 0%;
+    }
+
+    .progress-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .share-section {
+      margin-bottom: 32px;
+    }
+
+    .share-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .referral-link-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .referral-link {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      font-size: 14px;
+      font-family: 'SF Mono', Monaco, monospace;
+      color: var(--text-secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      user-select: all;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-accent);
+    }
+
+    .copy-btn.copied {
+      background: rgba(16,185,129,0.2);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .copy-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .social-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .social-btn.twitter {
+      background: #1da1f2;
+      color: white;
+    }
+
+    .social-btn.twitter:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(29,161,242,0.3);
+    }
+
+    .social-btn.reddit {
+      background: #ff4500;
+      color: white;
+    }
+
+    .social-btn.reddit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255,69,0,0.3);
+    }
+
+    .social-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--text-secondary);
+    }
+
+    .back-link svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      .success-card {
+        padding: 32px 24px;
+      }
+
+      .position-display {
+        font-size: 40px;
+      }
+
+      .referral-link-container {
+        flex-direction: column;
+      }
+
+      .social-buttons {
+        flex-direction: column;
+      }
+
+      .social-btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    
+    <h1 class="success-title">You're on the list!</h1>
+    <div class="position-display" id="position">—</div>
+    <p class="success-subtitle" id="subtitle">
+      <span class="loading-spinner"></span>
+    </p>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">Your Progress</span>
+        <span class="progress-value" id="referral-count">0 referrals</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p class="progress-hint">
+        Share your link below. Each friend who joins moves you up 50 spots.
+      </p>
+    </div>
+
+    <div class="share-section">
+      <h3 class="share-title">Share to skip the line</h3>
+      
+      <div class="referral-link-container">
+        <div class="referral-link" id="referral-link">Loading...</div>
+        <button class="copy-btn" id="copy-btn" onclick="copyLink()">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <span id="copy-text">Copy</span>
+        </button>
+      </div>
+
+      <div class="social-buttons">
+        <a href="#" class="social-btn twitter" id="twitter-btn" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+          Share on X
+        </a>
+        <a href="#" class="social-btn reddit" id="reddit-btn" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-1.5v-1h1.5v1zm-10 0H5.5v-1h1.5v1zm5 5.5c-2.5 0-4.5-1.5-4.5-3.5h9c0 2-2 3.5-4.5 3.5z"/></svg>
+          Share on Reddit
+        </a>
+      </div>
+    </div>
+
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to homepage
+    </a>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://iikrvgjfkuijcpvdwzvv.supabase.co';
+    
+    let userData = {
+      position: 0,
+      total: 0,
+      referralCount: 0,
+      referralCode: ''
+    };
+
+    async function fetchUserStatus() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const referralCode = urlParams.get('ref');
+      
+      if (!referralCode) {
+        showError('No referral code found. Please sign up first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/status?ref=${referralCode}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch status');
+        }
+
+        const data = await response.json();
+        userData = {
+          position: data.position,
+          total: data.total_users,
+          referralCount: data.referral_count,
+          referralCode: data.referral_code
+        };
+
+        updateUI();
+      } catch (error) {
+        console.error('Error fetching status:', error);
+        showError('Could not load your status. Please refresh the page.');
+      }
+    }
+
+    function updateUI() {
+      const shareUrl = `https://neuralmix.com/?ref=${userData.referralCode}`;
+      
+      document.getElementById('position').textContent = `#${userData.position.toLocaleString()}`;
+      document.getElementById('subtitle').textContent = 
+        `of ${userData.total.toLocaleString()} producers in line for early access`;
+      document.getElementById('referral-count').textContent = 
+        `${userData.referralCount} referral${userData.referralCount !== 1 ? 's' : ''}`;
+      document.getElementById('referral-link').textContent = shareUrl;
+      
+      // Update progress bar
+      const progress = Math.min((userData.referralCount * 50) / userData.total * 100, 100);
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+      
+      // Update social share links
+      const twitterText = encodeURIComponent(
+        `I'm #${userData.position} in line for NeuralMix — an AI co-pilot for music mixing. ` +
+        `Help me skip the line! 🎵`
+      );
+      document.getElementById('twitter-btn').href = 
+        `https://twitter.com/intent/tweet?text=${twitterText}&url=${encodeURIComponent(shareUrl)}`;
+      
+      const redditTitle = encodeURIComponent(
+        `I'm #${userData.position} in line for NeuralMix — AI music mixing co-pilot`
+      );
+      document.getElementById('reddit-btn').href = 
+        `https://reddit.com/submit?title=${redditTitle}&url=${encodeURIComponent(shareUrl)}`;
+    }
+
+    function copyLink() {
+      const linkText = document.getElementById('referral-link').textContent;
+      
+      navigator.clipboard.writeText(linkText).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const btnText = document.getElementById('copy-text');
+        
+        btn.classList.add('copied');
+        btnText.textContent = 'Copied!';
+        
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btnText.textContent = 'Copy';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        // Fallback: select the text
+        const linkElement = document.getElementById('referral-link');
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(linkElement);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      });
+    }
+
+    function showError(message) {
+      document.getElementById('subtitle').textContent = message;
+      document.getElementById('subtitle').style.color = 'var(--error)';
+    }
+
+    // Load user status on page load
+    fetchUserStatus();
+    
+    // Refresh every 30 seconds
+    setInterval(fetchUserStatus, 30000);
+  </script>
+
+</body>
+</html>
