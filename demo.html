@@ -466,11 +466,11 @@
 
     .fx-item {
       display: grid;
-      grid-template-columns: 70px 1fr auto;
-      align-items: center;
+      grid-template-columns: 72px 170px minmax(0, 1fr);
+      align-items: start;
       gap: 12px;
-      padding: 6px 0;
-      min-height: 44px;
+      padding: 10px 0;
+      min-height: 48px;
       border-bottom: 1px solid var(--glass-border);
     }
 
@@ -485,24 +485,27 @@
     }
 
     .fx-effect-name {
+      display: block;
       font-weight: 600;
       color: var(--aurora-teal);
       font-size: 13px;
+      line-height: 1.3;
     }
 
     .fx-params {
       display: flex;
-      align-items: center;
-      gap: 6px;
+      align-items: flex-start;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-start;
+      min-width: 0;
     }
 
     .param-chip {
       display: inline-flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 8px;
-      padding: 8px 14px;
+      padding: 8px 10px;
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--glass-border);
       border-radius: 10px;
@@ -526,18 +529,18 @@
     .param-slider-wrapper {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       position: relative;
     }
 
     .param-slider-container {
       position: relative;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       cursor: ns-resize;
       user-select: none;
-      gap: 4px;
+      gap: 8px;
     }
 
     .param-value {
@@ -548,20 +551,48 @@
       transition: all 0.2s;
       border: 1px solid transparent;
       white-space: nowrap;
-      min-width: 55px;
-      text-align: center;
+      min-width: 60px;
+      text-align: left;
       font-size: 11px;
     }
 
     .param-slider-track {
-      width: 4px;
-      height: 24px;
+      width: 10px;
+      height: 48px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 2px;
+      border-radius: 999px;
       opacity: 0;
       transition: opacity 0.2s;
       position: relative;
       overflow: hidden;
+      background-image: repeating-linear-gradient(
+        to top,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0.08) 3px,
+        transparent 3px,
+        transparent 8px
+      );
+    }
+
+    .param-slider-track::before,
+    .param-slider-track::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      width: 14px;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .param-slider-track::before {
+      top: 0;
+    }
+
+    .param-slider-track::after {
+      bottom: 0;
     }
 
     .param-slider-fill {
@@ -570,7 +601,7 @@
       left: 0;
       right: 0;
       background: linear-gradient(180deg, var(--aurora-teal), var(--aurora-green));
-      border-radius: 2px;
+      border-radius: 999px;
       height: 50%;
       transition: height 0.1s;
     }
@@ -594,7 +625,7 @@
 
     .param-slider-container.dragging .param-slider-track {
       opacity: 1;
-      width: 6px;
+      width: 12px;
     }
 
     .param-drag-hint {
@@ -613,6 +644,17 @@
     .param-slider-container:hover .param-drag-hint,
     .param-slider-container.dragging .param-drag-hint {
       opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .fx-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .fx-track-name {
+        margin-bottom: -2px;
+      }
     }
 
     .chat-input-container {
@@ -986,7 +1028,7 @@
       return `
         <span class="param-chip">
           <span class="param-slider-wrapper">
-            <span class="param-label">${paramName}:</span>
+            <span class="param-label">${paramName}</span>
             <span class="param-slider-container" 
                   data-track="${trackId}" 
                   data-fx="${fxIndex}" 
@@ -1056,7 +1098,7 @@
       if (!dragState) return;
       
       const deltaY = dragState.startY - event.clientY;
-      const pixelRange = 150;
+      const pixelRange = dragState.unit.includes('dB') ? 220 : dragState.unit.includes('%') ? 180 : dragState.unit.includes('ms') ? 140 : dragState.unit.includes('Hz') ? 260 : 170;
       const percentChange = (deltaY / pixelRange) * dragState.sensitivity;
       const valueChange = percentChange * dragState.range;
       const newValue = dragState.startValue + valueChange;
@@ -1164,7 +1206,7 @@
                 <svg class="reasoning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
-                <span class="reasoning-title">AI Reasoning</span>
+                <span class="reasoning-title">NeuralMix Brain</span>
               </div>
               <div class="reasoning-text">${escapeHtml(response.reasoning)}</div>
             </div>
