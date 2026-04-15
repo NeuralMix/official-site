@@ -350,6 +350,8 @@
       flex-direction: column;
       overflow: hidden;
       animation: fadeUp 0.5s var(--ease-out) 0.3s backwards;
+      min-height: 0;
+      max-height: calc(100vh - 200px);
     }
 
     .chat-header {
@@ -368,6 +370,8 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      min-height: 0;
+      scroll-behavior: smooth;
     }
 
     .message {
@@ -658,7 +662,7 @@
 
     @media (max-width: 1024px) {
       .demo-main { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
-      .chat-panel { height: 500px; }
+      .chat-panel { height: 500px; max-height: 500px; }
     }
 
     @media (max-width: 640px) {
