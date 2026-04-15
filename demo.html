@@ -905,6 +905,10 @@
       }
     }
 
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async function sendMessage() {
       const input = document.getElementById('chat-input');
       const sendBtn = document.getElementById('send-btn');
@@ -927,8 +931,42 @@
       chat.scrollTop = chat.scrollHeight;
       
       try {
-        const response = await callMiniMax(message);
+        await sleep(1200);
+        
+        const thinkingId = 'thinking-' + Date.now();
         document.getElementById(typingId)?.remove();
+        chat.innerHTML += `
+          <div class="message ai" id="${thinkingId}" style="opacity: 0.7;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"/>
+              </svg>
+              Analyzing your request...
+            </div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+        
+        await sleep(1500);
+        document.getElementById(thinkingId)?.remove();
+        
+        const reasoningId = 'reasoning-' + Date.now();
+        chat.innerHTML += `
+          <div class="message ai" id="${reasoningId}" style="opacity: 0.7;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"/>
+              </svg>
+              Generating mixing strategy...
+            </div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+        
+        await sleep(2000);
+        document.getElementById(reasoningId)?.remove();
+        
+        const response = await callMiniMax(message);
         
         let aiResponseHTML = `<div class="message ai"><div>I'll apply those changes to your mix.</div>`;
         
@@ -977,6 +1015,24 @@
         chat.innerHTML += aiResponseHTML;
         chat.scrollTop = chat.scrollHeight;
         
+        await sleep(800);
+        
+        const applyingId = 'applying-' + Date.now();
+        chat.innerHTML += `
+          <div class="message ai" id="${applyingId}" style="opacity: 0.7;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"/>
+              </svg>
+              Applying effects to tracks...
+            </div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+        
+        await sleep(1500);
+        document.getElementById(applyingId)?.remove();
+        
         Object.entries(response.trackUpdates).forEach(([trackId, fxList], index) => {
           const track = tracks.find(t => t.id === trackId);
           if (track) {
@@ -994,7 +1050,7 @@
               track.processing = false;
               renderTracks();
               document.getElementById(`track-${trackId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 800 + (index * 200));
+            }, 1500 + (index * 800));
           }
         });
       } catch (error) {
