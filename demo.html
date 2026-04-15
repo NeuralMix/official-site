@@ -465,23 +465,23 @@
     }
 
     .fx-item {
-      display: flex;
+      display: grid;
+      grid-template-columns: 70px 1fr auto;
       align-items: center;
       gap: 12px;
-      padding: 8px 0;
-      min-height: 40px;
+      padding: 6px 0;
+      min-height: 44px;
       border-bottom: 1px solid var(--glass-border);
     }
 
     .fx-item:last-child { border-bottom: none; }
 
     .fx-track-name {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      min-width: 80px;
     }
 
     .fx-effect-name {
@@ -493,74 +493,94 @@
     .fx-params {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-left: auto;
+      gap: 6px;
       flex-wrap: wrap;
-      justify-content: flex-end;
+      justify-content: flex-start;
     }
 
     .param-chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
+      gap: 8px;
+      padding: 8px 14px;
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--glass-border);
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
       position: relative;
+      transition: all 0.2s;
+    }
+
+    .param-chip:hover {
+      border-color: rgba(34, 211, 238, 0.3);
+      background: rgba(34, 211, 238, 0.05);
     }
 
     .param-label {
       color: var(--text-muted);
       white-space: nowrap;
+      font-size: 10px;
+    }
+
+    .param-slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
     }
 
     .param-slider-container {
       position: relative;
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      cursor: ew-resize;
+      cursor: ns-resize;
       user-select: none;
+      gap: 4px;
     }
 
     .param-value {
       color: var(--text-primary);
       font-weight: 600;
-      padding: 2px 8px;
+      padding: 3px 8px;
       border-radius: 4px;
       transition: all 0.2s;
       border: 1px solid transparent;
       white-space: nowrap;
-      min-width: 50px;
+      min-width: 55px;
       text-align: center;
+      font-size: 11px;
     }
 
     .param-slider-track {
-      position: absolute;
-      bottom: -2px;
-      left: 8px;
-      right: 8px;
-      height: 3px;
+      width: 4px;
+      height: 24px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 2px;
       opacity: 0;
       transition: opacity 0.2s;
+      position: relative;
+      overflow: hidden;
     }
 
     .param-slider-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--aurora-teal), var(--aurora-green));
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, var(--aurora-teal), var(--aurora-green));
       border-radius: 2px;
-      width: 50%;
-      transition: width 0.1s;
+      height: 50%;
+      transition: height 0.1s;
     }
 
+    .param-chip:hover .param-slider-track,
     .param-slider-container:hover .param-slider-track {
       opacity: 1;
     }
 
+    .param-chip:hover .param-value,
     .param-slider-container:hover .param-value {
       background: rgba(34, 211, 238, 0.15);
       border-color: rgba(34, 211, 238, 0.4);
@@ -569,12 +589,30 @@
     .param-slider-container.dragging .param-value {
       background: rgba(34, 211, 238, 0.3);
       border-color: var(--aurora-teal);
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
 
     .param-slider-container.dragging .param-slider-track {
       opacity: 1;
-      height: 4px;
+      width: 6px;
+    }
+
+    .param-drag-hint {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: var(--aurora-teal);
+      opacity: 0;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .param-slider-container:hover .param-drag-hint,
+    .param-slider-container.dragging .param-drag-hint {
+      opacity: 1;
     }
 
     .chat-input-container {
@@ -926,25 +964,45 @@
       const numericMatch = paramValue.match(/([+-]?\d+\.?\d*)/);
       const numericValue = numericMatch ? parseFloat(numericMatch[1]) : 0;
       const unit = paramValue.replace(/[+-]?\d+\.?\d*/, '');
-      const min = unit.includes('Hz') ? 20 : unit.includes('dB') ? -24 : unit.includes('ms') ? 1 : 0;
-      const max = unit.includes('Hz') ? 20000 : unit.includes('dB') ? 24 : unit.includes('ms') ? 500 : unit.includes('%') ? 100 : 10;
+      
+      let min, max, sensitivity;
+      if (unit.includes('Hz')) {
+        min = 20; max = 20000; sensitivity = 0.5;
+      } else if (unit.includes('dB')) {
+        min = -24; max = 24; sensitivity = 0.3;
+      } else if (unit.includes('ms')) {
+        min = 1; max = 500; sensitivity = 0.8;
+      } else if (unit.includes('%')) {
+        min = 0; max = 100; sensitivity = 0.4;
+      } else if (unit.includes(':')) {
+        min = 1; max = 20; sensitivity = 0.2;
+      } else {
+        min = 0; max = 10; sensitivity = 0.5;
+      }
+      
       const percent = ((numericValue - min) / (max - min)) * 100;
+      const decimals = unit.includes('Hz') || unit.includes('ms') || unit.includes(':') ? 0 : 1;
       
       return `
         <span class="param-chip">
-          <span class="param-label">${paramName}:</span>
-          <span class="param-slider-container" 
-                data-track="${trackId}" 
-                data-fx="${fxIndex}" 
-                data-param="${paramKey}"
-                data-value="${numericValue}"
-                data-unit="${unit}"
-                data-min="${min}"
-                data-max="${max}"
-                onmousedown="startDrag(this, event)">
-            <span class="param-value">${paramValue}</span>
-            <span class="param-slider-track">
-              <span class="param-slider-fill" style="width: ${Math.max(0, Math.min(100, percent))}%"></span>
+          <span class="param-slider-wrapper">
+            <span class="param-label">${paramName}:</span>
+            <span class="param-slider-container" 
+                  data-track="${trackId}" 
+                  data-fx="${fxIndex}" 
+                  data-param="${paramKey}"
+                  data-value="${numericValue}"
+                  data-unit="${unit}"
+                  data-min="${min}"
+                  data-max="${max}"
+                  data-sensitivity="${sensitivity}"
+                  data-decimals="${decimals}"
+                  onmousedown="startDrag(this, event)">
+              <span class="param-slider-track">
+                <span class="param-slider-fill" style="height: ${Math.max(0, Math.min(100, percent))}%"></span>
+              </span>
+              <span class="param-drag-hint">↑↓ drag</span>
+              <span class="param-value">${paramValue}</span>
             </span>
           </span>
         </span>
@@ -965,20 +1023,22 @@
 
     function startDrag(element, event) {
       event.preventDefault();
-      const rect = element.getBoundingClientRect();
       const min = parseFloat(element.dataset.min);
       const max = parseFloat(element.dataset.max);
-      const startX = event.clientX;
+      const startY = event.clientY;
       const startValue = parseFloat(element.dataset.value);
-      const step = (max - min) / 100;
+      const sensitivity = parseFloat(element.dataset.sensitivity);
+      const decimals = parseInt(element.dataset.decimals);
       
       dragState = {
         element: element,
-        startX: startX,
+        startY: startY,
         startValue: startValue,
         min: min,
         max: max,
-        step: step,
+        range: max - min,
+        sensitivity: sensitivity,
+        decimals: decimals,
         unit: element.dataset.unit,
         trackId: element.dataset.track,
         fxIndex: parseInt(element.dataset.fx),
@@ -986,7 +1046,7 @@
       };
       
       element.classList.add('dragging');
-      document.body.style.cursor = 'ew-resize';
+      document.body.style.cursor = 'ns-resize';
       
       document.addEventListener('mousemove', onDrag);
       document.addEventListener('mouseup', stopDrag);
@@ -995,13 +1055,14 @@
     function onDrag(event) {
       if (!dragState) return;
       
-      const deltaX = event.clientX - dragState.startX;
-      const sensitivity = 2;
-      const newValue = dragState.startValue + (deltaX * dragState.step * sensitivity);
+      const deltaY = dragState.startY - event.clientY;
+      const pixelRange = 150;
+      const percentChange = (deltaY / pixelRange) * dragState.sensitivity;
+      const valueChange = percentChange * dragState.range;
+      const newValue = dragState.startValue + valueChange;
       const clampedValue = Math.max(dragState.min, Math.min(dragState.max, newValue));
       
-      const decimals = dragState.unit.includes('Hz') || dragState.unit.includes('ms') ? 0 : 1;
-      const formattedValue = clampedValue.toFixed(decimals);
+      const formattedValue = clampedValue.toFixed(dragState.decimals);
       const displayValue = (clampedValue >= 0 && dragState.unit.includes('dB')) ? `+${formattedValue}` : formattedValue;
       
       const valueEl = dragState.element.querySelector('.param-value');
@@ -1010,7 +1071,7 @@
       valueEl.textContent = displayValue + dragState.unit;
       
       const percent = ((clampedValue - dragState.min) / (dragState.max - dragState.min)) * 100;
-      fillEl.style.width = Math.max(0, Math.min(100, percent)) + '%';
+      fillEl.style.height = Math.max(0, Math.min(100, percent)) + '%';
       
       dragState.currentValue = displayValue + dragState.unit;
     }
