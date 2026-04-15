@@ -130,21 +130,6 @@
     .star:nth-child(9) { top: 50%; left: 35%; animation: starTwinkle 3.5s ease-in-out infinite 0.2s; width: 3px; height: 3px; }
     .star:nth-child(10) { top: 30%; left: 55%; animation: starTwinkle 2s ease-in-out infinite 1.8s; }
 
-    /* Mountain silhouettes */
-    .mountain-left {
-      position: fixed;
-      left: -10%;
-      bottom: 0;
-      width: 40%;
-      height: 60%;
-      background: url('assets/mountain-left_001.jpg') bottom left/contain no-repeat;
-      opacity: 0.4;
-      z-index: -1;
-      pointer-events: none;
-      mask-image: linear-gradient(to right, black 50%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to right, black 50%, transparent 100%);
-    }
-
     .nav {
       position: fixed;
       top: 0;
@@ -355,63 +340,6 @@
     .daw-logo:hover {
       opacity: 1;
       transform: translateY(-2px);
-    }
-
-    .product-preview {
-      position: relative;
-      margin-top: 80px;
-      animation: fadeUp 1s var(--ease-out) 0.9s backwards;
-    }
-
-    .product-preview-inner {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 
-        0 40px 80px rgba(0, 0, 0, 0.5),
-        0 0 100px rgba(34, 211, 238, 0.1);
-    }
-
-    .product-preview-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .window-dots {
-      display: flex;
-      gap: 8px;
-    }
-
-    .window-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
-    .window-dot.red { background: #ff5f57; }
-    .window-dot.yellow { background: #febc2e; }
-    .window-dot.green { background: #28c840; }
-
-    .product-preview-title {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .product-preview-image {
-      width: 100%;
-      height: auto;
-      display: block;
-      mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
     }
 
     .features {
@@ -639,7 +567,6 @@
     <div class="star"></div>
   </div>
   <div class="bg-layer bg-vignette"></div>
-  <div class="mountain-left"></div>
 
   <!-- Navigation -->
   <nav class="nav">
@@ -696,20 +623,6 @@
         <img src="fl-studio-logo.png" alt="FL Studio" class="daw-logo">
       </div>
 
-      <!-- Product Preview (Partial - Creates Scroll Motivation) -->
-      <div class="product-preview">
-        <div class="product-preview-inner">
-          <div class="product-preview-header">
-            <div class="window-dots">
-              <div class="window-dot red"></div>
-              <div class="window-dot yellow"></div>
-              <div class="window-dot green"></div>
-            </div>
-            <span class="product-preview-title">NeuralMix · Interactive Demo</span>
-          </div>
-          <img src="assets/product-screenshot_001.jpg" alt="NeuralMix Interface" class="product-preview-image">
-        </div>
-      </div>
     </div>
   </section>
 
