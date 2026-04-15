@@ -776,24 +776,18 @@
       letter-spacing: 0.5px;
     }
 
-    .daw-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-3);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
+    .daw-logo {
+      height: 32px;
+      width: auto;
+      opacity: 0.7;
       transition: all var(--duration-fast) var(--ease-out);
+      filter: brightness(1.2) saturate(0.8);
     }
-    
-    .daw-badge:hover {
-      border-color: var(--border-medium);
-      color: var(--text-primary);
-      background: var(--bg-elevated);
+
+    .daw-logo:hover {
+      opacity: 1;
+      transform: translateY(-3px);
+      filter: brightness(1.4) saturate(1);
     }
 
     /* ─────────────────────────────────────────────
@@ -1663,9 +1657,9 @@
 
         <div class="trust-badges">
           <span class="trust-label">Works inside</span>
-          <span class="daw-badge">Ableton Live</span>
-          <span class="daw-badge">Logic Pro</span>
-          <span class="daw-badge">FL Studio</span>
+          <img src="ableton-logo.webp" alt="Ableton Live" class="daw-logo">
+          <img src="logic-logo.png" alt="Logic Pro" class="daw-logo">
+          <img src="fl-studio-logo.png" alt="FL Studio" class="daw-logo">
         </div>
 
         <a href="demo.html" class="demo-preview-wrapper">
