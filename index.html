@@ -5,260 +5,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeuralMix — AI Co-Pilot for Music Mixing</title>
   <meta name="description" content="NeuralMix is an AI-powered DAW plugin that mixes your tracks with stem-level precision using natural language.">
-  
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://neuralmix.com">
   <meta property="og:title" content="NeuralMix — AI Co-Pilot for Music Mixing">
   <meta property="og:description" content="Upload your stems. Tell it what you want. Professional-grade AI mixing inside your DAW.">
-  <meta property="og:image" content="https://neuralmix.com/og-image.jpg">
-  
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://neuralmix.com">
   <meta property="twitter:title" content="NeuralMix — AI Co-Pilot for Music Mixing">
-  <meta property="twitter:description" content="Upload your stems. Tell it what you want. Professional-grade AI mixing inside your DAW.">
-  <meta property="twitter:image" content="https://neuralmix.com/og-image.jpg">
-  
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%233b82f6'/><path d='M25 70 L25 30 L40 55 L55 20 L70 50 L75 30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
-  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%23e8b923'/><path d='M25 70 L25 30 L40 55 L55 20 L70 50 L75 30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
-    /* ─────────────────────────────────────────────
-       DESIGN SYSTEM v2.0 — Premium Studio Aesthetic
-    ───────────────────────────────────────────── */
-    
-    /* CSS Reset */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Color System — Dark Studio */
-      --bg-primary: #05070a;
-      --bg-secondary: #0a0e17;
-      --bg-tertiary: #111827;
-      --bg-elevated: #1a2234;
+      --vangogh-navy: #0a1628;
+      --vangogh-deep: #1a2a3e;
+      --vangogh-blue: #2a4360;
+      --vangogh-cyan: #4a7c9b;
+      --vangogh-gold: #e8b923;
+      --vangogh-cream: #f4e4c1;
+      --vangogh-orange: #d4704a;
       
-      --accent-blue: #3b82f6;
-      --accent-blue-dark: #2563eb;
-      --accent-cyan: #06b6d4;
-      --accent-cyan-light: #67e8f9;
-      
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-tertiary: #64748b;
-      --text-muted: #475569;
-      
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --border-medium: rgba(255, 255, 255, 0.1);
-      --border-strong: rgba(255, 255, 255, 0.15);
-      --surface-hover: rgba(255, 255, 255, 0.03);
-      --surface-active: rgba(255, 255, 255, 0.06);
-      
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      
-      /* Spacing — 4px Base Unit */
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-5: 20px;
-      --space-6: 24px;
-      --space-8: 32px;
-      --space-10: 40px;
-      --space-12: 48px;
-      --space-16: 64px;
-      --space-20: 80px;
-      --space-24: 96px;
-      --space-32: 128px;
-      
-      /* Border Radius */
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 24px;
-      --radius-full: 9999px;
-      
-      /* Animation */
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
       --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-      
-      --duration-instant: 100ms;
       --duration-fast: 200ms;
-      --duration-normal: 300ms;
-      --duration-slow: 500ms;
-      --duration-slower: 800ms;
+      --duration-normal: 400ms;
+      --duration-slow: 800ms;
+    }
+
+    @keyframes pageLoad {
+      0% { opacity: 0; transform: scale(1.02); filter: blur(10px); }
+      100% { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
+
+    @keyframes starTwinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     html {
       scroll-behavior: smooth;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--vangogh-navy);
+      color: var(--vangogh-cream);
       line-height: 1.6;
       overflow-x: hidden;
+      animation: pageLoad 1.2s var(--ease-out) backwards;
     }
 
-    /* ─────────────────────────────────────────────
-       ANIMATIONS
-    ───────────────────────────────────────────── */
-    
-    @keyframes fadeUp {
-      from { 
-        opacity: 0; 
-        transform: translateY(30px); 
-      }
-      to { 
-        opacity: 1; 
-        transform: translateY(0); 
-      }
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    @keyframes scaleIn {
-      from { 
-        opacity: 0; 
-        transform: scale(0.95); 
-      }
-      to { 
-        opacity: 1; 
-        transform: scale(1); 
-      }
-    }
-    
-    @keyframes pulse {
-      0%, 100% { 
-        opacity: 1; 
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); 
-      }
-      50% { 
-        opacity: 0.8; 
-        box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.2); 
-      }
-    }
-    
-    @keyframes waveform {
-      0%, 100% { transform: scaleY(0.3); opacity: 0.4; }
-      50% { transform: scaleY(1); opacity: 0.8; }
-    }
-    
-    @keyframes glowPulse {
-      0%, 100% { 
-        box-shadow: 0 0 60px rgba(59, 130, 246, 0.15); 
-      }
-      50% { 
-        box-shadow: 0 0 100px rgba(59, 130, 246, 0.25); 
-      }
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    @keyframes slideInRight {
-      from { 
-        opacity: 0; 
-        transform: translateX(30px); 
-      }
-      to { 
-        opacity: 1; 
-        transform: translateX(0); 
-      }
-    }
-
-    /* Animation Utilities */
-    .animate-on-scroll {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity var(--duration-slow) var(--ease-out),
-                  transform var(--duration-slow) var(--ease-out);
-    }
-    
-    .animate-on-scroll.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .stagger-1 { transition-delay: 50ms; }
-    .stagger-2 { transition-delay: 100ms; }
-    .stagger-3 { transition-delay: 150ms; }
-    .stagger-4 { transition-delay: 200ms; }
-
-    /* ─────────────────────────────────────────────
-       LAYOUT
-    ───────────────────────────────────────────── */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 var(--space-6);
-    }
-    
-    .container-narrow {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 var(--space-6);
-    }
-
-    /* ─────────────────────────────────────────────
-       NOISE & TEXTURE OVERLAY
-    ───────────────────────────────────────────── */
-    .noise-overlay {
+    .starry-bg {
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(74, 124, 155, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(212, 112, 74, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse 100% 100% at 50% 0%, rgba(26, 42, 62, 0.8) 0%, transparent 70%),
+        linear-gradient(180deg, var(--vangogh-navy) 0%, var(--vangogh-deep) 50%, var(--vangogh-blue) 100%);
+      z-index: -2;
     }
 
-    /* ─────────────────────────────────────────────
-       NAVIGATION
-    ───────────────────────────────────────────── */
+    .stars {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--vangogh-gold);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--vangogh-gold);
+    }
+
+    .star:nth-child(1) { top: 10%; left: 15%; animation: starTwinkle 3s ease-in-out infinite; }
+    .star:nth-child(2) { top: 20%; left: 80%; animation: starTwinkle 4s ease-in-out infinite 0.5s; }
+    .star:nth-child(3) { top: 15%; left: 45%; animation: starTwinkle 2.5s ease-in-out infinite 1s; width: 4px; height: 4px; }
+    .star:nth-child(4) { top: 35%; left: 25%; animation: starTwinkle 3.5s ease-in-out infinite 1.5s; }
+    .star:nth-child(5) { top: 8%; left: 65%; animation: starTwinkle 2s ease-in-out infinite 0.3s; width: 5px; height: 5px; }
+    .star:nth-child(6) { top: 45%; left: 90%; animation: starTwinkle 4s ease-in-out infinite 2s; }
+    .star:nth-child(7) { top: 25%; left: 5%; animation: starTwinkle 3s ease-in-out infinite 0.8s; }
+    .star:nth-child(8) { top: 5%; left: 35%; animation: starTwinkle 2.5s ease-in-out infinite 1.2s; width: 4px; height: 4px; }
+    .star:nth-child(9) { top: 55%; left: 70%; animation: starTwinkle 3.5s ease-in-out infinite 0.2s; }
+    .star:nth-child(10) { top: 40%; left: 50%; animation: starTwinkle 2s ease-in-out infinite 1.8s; width: 6px; height: 6px; box-shadow: 0 0 15px var(--vangogh-gold), 0 0 30px rgba(232, 185, 35, 0.5); }
+    .star:nth-child(11) { top: 18%; left: 92%; animation: starTwinkle 4s ease-in-out infinite 0.6s; }
+    .star:nth-child(12) { top: 60%; left: 15%; animation: starTwinkle 3s ease-in-out infinite 1.4s; }
+    .star:nth-child(13) { top: 3%; left: 55%; animation: starTwinkle 2.5s ease-in-out infinite 0.9s; width: 4px; height: 4px; }
+    .star:nth-child(14) { top: 50%; left: 40%; animation: starTwinkle 3.5s ease-in-out infinite 2.2s; }
+    .star:nth-child(15) { top: 12%; left: 72%; animation: starTwinkle 2s ease-in-out infinite 0.4s; width: 3px; height: 3px; }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(10, 22, 40, 0.6) 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
     .nav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       z-index: 100;
-      padding: var(--space-4) 0;
-      background: rgba(5, 7, 10, 0.7);
-      backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid var(--border-subtle);
-      transition: all var(--duration-normal) var(--ease-out);
-    }
-    
-    .nav.scrolled {
-      background: rgba(5, 7, 10, 0.9);
-      padding: var(--space-3) 0;
+      padding: 20px 0;
+      background: rgba(10, 22, 40, 0.6);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(244, 228, 193, 0.1);
+      animation: slideInLeft 0.8s var(--ease-out) 0.2s backwards;
     }
 
     .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -267,38 +146,33 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: var(--space-3);
+      gap: 12px;
       font-weight: 800;
-      font-size: 20px;
-      color: var(--text-primary);
+      font-size: 22px;
+      color: var(--vangogh-cream);
       text-decoration: none;
       letter-spacing: -0.5px;
-      transition: transform var(--duration-fast) var(--ease-out);
-    }
-    
-    .logo:hover {
-      transform: scale(1.02);
+      transition: all var(--duration-fast) var(--ease-out);
     }
 
+    .logo:hover { transform: scale(1.03); }
+
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-      border-radius: var(--radius-sm);
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-      transition: box-shadow var(--duration-fast) var(--ease-out);
-    }
-    
-    .logo:hover .logo-icon {
-      box-shadow: 0 6px 30px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 4px 20px rgba(232, 185, 35, 0.4);
     }
 
+    .logo:hover .logo-icon { transform: rotate(5deg); }
+
     .logo-icon svg {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       stroke: white;
       fill: none;
       stroke-width: 2.5;
@@ -306,21 +180,17 @@
       stroke-linejoin: round;
     }
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: var(--space-8);
-    }
+    .nav-links { display: flex; align-items: center; gap: 40px; }
 
     .nav-link {
-      color: var(--text-secondary);
+      color: rgba(244, 228, 193, 0.7);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: all var(--duration-fast) var(--ease-out);
       position: relative;
     }
-    
+
     .nav-link::after {
       content: '';
       position: absolute;
@@ -328,1341 +198,409 @@
       left: 0;
       width: 0;
       height: 2px;
-      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      background: var(--vangogh-gold);
       transition: width var(--duration-normal) var(--ease-out);
     }
 
-    .nav-link:hover {
-      color: var(--text-primary);
-    }
-    
-    .nav-link:hover::after {
-      width: 100%;
-    }
+    .nav-link:hover { color: var(--vangogh-cream); }
+    .nav-link:hover::after { width: 100%; }
 
-    /* ─────────────────────────────────────────────
-       HERO SECTION
-    ───────────────────────────────────────────── */
     .hero {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: var(--space-32) 0 var(--space-20);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Grid Pattern Background */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: 
-        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black, transparent);
-      -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black, transparent);
-      pointer-events: none;
-    }
-
-    /* Large Glow Effect */
-    .hero-glow {
-      position: absolute;
-      width: 1000px;
-      height: 1000px;
-      top: -300px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(ellipse, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.08) 40%, transparent 70%);
-      pointer-events: none;
-      filter: blur(80px);
-      animation: glowPulse 4s ease-in-out infinite;
-    }
-
-    /* Waveform Visualization */
-    .waveform-container {
-      position: absolute;
-      bottom: 15%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 600px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      opacity: 0.3;
-      pointer-events: none;
-    }
-    
-    .waveform-bar {
-      flex: 1;
-      background: linear-gradient(to top, var(--accent-blue), var(--accent-cyan));
-      border-radius: 2px;
-      animation: waveform 1.2s ease-in-out infinite;
-    }
-    
-    .waveform-bar:nth-child(1) { animation-delay: 0ms; height: 40%; }
-    .waveform-bar:nth-child(2) { animation-delay: 100ms; height: 70%; }
-    .waveform-bar:nth-child(3) { animation-delay: 200ms; height: 100%; }
-    .waveform-bar:nth-child(4) { animation-delay: 300ms; height: 60%; }
-    .waveform-bar:nth-child(5) { animation-delay: 400ms; height: 80%; }
-    .waveform-bar:nth-child(6) { animation-delay: 500ms; height: 50%; }
-    .waveform-bar:nth-child(7) { animation-delay: 600ms; height: 90%; }
-    .waveform-bar:nth-child(8) { animation-delay: 700ms; height: 45%; }
-    .waveform-bar:nth-child(9) { animation-delay: 800ms; height: 75%; }
-    .waveform-bar:nth-child(10) { animation-delay: 900ms; height: 55%; }
-    .waveform-bar:nth-child(11) { animation-delay: 1000ms; height: 85%; }
-    .waveform-bar:nth-child(12) { animation-delay: 1100ms; height: 35%; }
-    .waveform-bar:nth-child(13) { animation-delay: 1200ms; height: 65%; }
-    .waveform-bar:nth-child(14) { animation-delay: 1300ms; height: 50%; }
-    .waveform-bar:nth-child(15) { animation-delay: 1400ms; height: 70%; }
-    .waveform-bar:nth-child(16) { animation-delay: 1500ms; height: 40%; }
-    .waveform-bar:nth-child(17) { animation-delay: 1600ms; height: 60%; }
-    .waveform-bar:nth-child(18) { animation-delay: 1700ms; height: 80%; }
-    .waveform-bar:nth-child(19) { animation-delay: 1800ms; height: 45%; }
-    .waveform-bar:nth-child(20) { animation-delay: 1900ms; height: 55%; }
-
-    .hero-content {
+      padding: 140px 24px 100px;
       position: relative;
       z-index: 1;
+    }
+
+    .hero-content {
+      max-width: 1200px;
+      margin: 0 auto;
       text-align: center;
     }
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-4);
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: var(--radius-full);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent-blue);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: var(--space-6);
-      animation: fadeUp 0.6s var(--ease-out) backwards;
-    }
-
-    .hero-badge-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--accent-cyan);
-      border-radius: 50%;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
     .hero-title {
-      font-size: clamp(44px, 8vw, 80px);
-      font-weight: 800;
-      line-height: 0.95;
+      font-size: clamp(48px, 10vw, 90px);
+      font-weight: 900;
+      line-height: 1;
       letter-spacing: -0.03em;
-      margin-bottom: var(--space-6);
-      animation: fadeUp 0.6s var(--ease-out) 0.1s backwards;
+      margin-bottom: 24px;
+      color: var(--vangogh-cream);
+      animation: fadeUp 1s var(--ease-out) 0.4s backwards;
       text-wrap: balance;
     }
 
-    .hero-title-gradient {
-      background: linear-gradient(135deg, #60a5fa 0%, #a5f3fc 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+    .hero-title-accent {
+      color: var(--vangogh-gold);
+      text-shadow: 0 0 60px rgba(232, 185, 35, 0.4);
     }
 
     .hero-subtitle {
-      font-size: clamp(16px, 2.5vw, 20px);
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto var(--space-10);
-      line-height: 1.6;
-      animation: fadeUp 0.6s var(--ease-out) 0.2s backwards;
+      font-size: clamp(18px, 3vw, 22px);
+      color: rgba(244, 228, 193, 0.8);
+      max-width: 650px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeUp 1s var(--ease-out) 0.6s backwards;
     }
 
     .hero-counter {
       display: inline-flex;
       align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-3) var(--space-5);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-full);
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: var(--space-8);
-      animation: fadeUp 0.6s var(--ease-out) 0.3s backwards;
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-    
-    .hero-counter:hover {
-      border-color: var(--border-strong);
-      background: var(--bg-elevated);
+      gap: 8px;
+      padding: 14px 24px;
+      background: rgba(244, 228, 193, 0.08);
+      border: 1px solid rgba(244, 228, 193, 0.15);
+      border-radius: 50px;
+      font-size: 15px;
+      color: rgba(244, 228, 193, 0.9);
+      margin-bottom: 32px;
+      animation: fadeUp 1s var(--ease-out) 0.7s backwards;
     }
 
     .hero-counter-number {
-      color: var(--accent-cyan);
+      color: var(--vangogh-gold);
       font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
 
-    /* ─────────────────────────────────────────────
-       WAITLIST FORM
-    ───────────────────────────────────────────── */
     .waitlist-form {
-      max-width: 480px;
-      margin: 0 auto var(--space-12);
-      animation: fadeUp 0.6s var(--ease-out) 0.4s backwards;
+      max-width: 500px;
+      margin: 0 auto 48px;
+      animation: fadeUp 1s var(--ease-out) 0.8s backwards;
     }
 
     .form-container {
       display: flex;
-      gap: var(--space-3);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-xl);
-      padding: var(--space-2);
+      gap: 12px;
+      background: rgba(244, 228, 193, 0.08);
+      border: 1px solid rgba(244, 228, 193, 0.15);
+      border-radius: 16px;
+      padding: 8px;
       transition: all var(--duration-fast) var(--ease-out);
     }
-    
+
     .form-container:focus-within {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: var(--vangogh-gold);
+      box-shadow: 0 0 0 4px rgba(232, 185, 35, 0.15);
     }
 
     .form-input {
       flex: 1;
       background: transparent;
       border: none;
-      padding: var(--space-4) var(--space-5);
+      padding: 16px 20px;
       font-size: 16px;
-      color: var(--text-primary);
+      color: var(--vangogh-cream);
       outline: none;
     }
 
-    .form-input::placeholder {
-      color: var(--text-muted);
-    }
+    .form-input::placeholder { color: rgba(244, 228, 193, 0.5); }
 
     .form-button {
       display: inline-flex;
       align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-4) var(--space-7);
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-      color: white;
+      gap: 8px;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
+      color: var(--vangogh-navy);
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       border: none;
-      border-radius: var(--radius-lg);
+      border-radius: 12px;
       cursor: pointer;
       transition: all var(--duration-fast) var(--ease-out);
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .form-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left var(--duration-slow) var(--ease-out);
-    }
-    
-    .form-button:hover::before {
-      left: 100%;
+      box-shadow: 0 4px 20px rgba(232, 185, 35, 0.4);
     }
 
     .form-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 30px rgba(232, 185, 35, 0.5);
     }
 
-    .form-button:active {
-      transform: translateY(0) scale(0.98);
-    }
-
-    .form-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .form-error {
-      color: var(--error);
-      font-size: 13px;
-      margin-top: var(--space-3);
-      text-align: center;
-      animation: fadeIn var(--duration-fast) var(--ease-out);
-    }
-
-    .form-success {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-      border-radius: var(--radius-lg);
-      padding: var(--space-6);
-      text-align: center;
-      animation: scaleIn var(--duration-normal) var(--ease-out);
-    }
-
-    .form-success-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--success);
-      margin-bottom: var(--space-2);
-    }
-
-    .form-success-text {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    /* ─────────────────────────────────────────────
-       TRUST BADGES
-    ───────────────────────────────────────────── */
-    .trust-badges {
+    .daw-logos {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-6);
+      gap: 32px;
+      margin-top: 48px;
+      animation: fadeUp 1s var(--ease-out) 0.9s backwards;
       flex-wrap: wrap;
-      animation: fadeUp 0.6s var(--ease-out) 0.5s backwards;
     }
 
-    .trust-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .daw-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-3);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-    
-    .daw-badge:hover {
-      border-color: var(--border-medium);
-      color: var(--text-primary);
-      background: var(--bg-elevated);
-    }
-
-    /* ─────────────────────────────────────────────
-       INTERACTIVE DEMO CTA
-    ───────────────────────────────────────────── */
-    .visual-demo {
-      margin-top: var(--space-16);
-      position: relative;
-      animation: fadeUp 0.6s var(--ease-out) 0.6s backwards;
-    }
-
-    .demo-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      overflow: hidden;
-      box-shadow: 
-        0 20px 50px rgba(0, 0, 0, 0.5),
-        0 0 60px rgba(59, 130, 246, 0.1);
-      transition: all var(--duration-normal) var(--ease-out);
-      display: block;
-      text-decoration: none;
-      position: relative;
-    }
-    
-    .demo-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 20px;
-      right: 20px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.4), transparent);
-    }
-
-    .demo-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.6),
-        0 0 80px rgba(59, 130, 246, 0.15);
-      border-color: var(--border-medium);
-    }
-
-    .demo-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-4) var(--space-5);
-      background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .demo-dots {
-      display: flex;
-      gap: var(--space-2);
-    }
-
-    .demo-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .demo-dot-red { background: rgba(239, 68, 68, 0.8); }
-    .demo-dot-yellow { background: rgba(245, 158, 11, 0.8); }
-    .demo-dot-green { background: rgba(34, 197, 94, 0.8); }
-
-    .demo-title {
+    .daw-label {
       font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .demo-body {
-      padding: var(--space-6);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .chat-message {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-    }
-
-    .chat-message.user {
-      align-items: flex-end;
-    }
-
-    .chat-bubble {
-      max-width: 80%;
-      padding: var(--space-4) var(--space-5);
-      border-radius: 18px;
-      font-size: 14px;
-      line-height: 1.5;
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-    
-    .chat-bubble:hover {
-      transform: scale(1.01);
-    }
-
-    .chat-bubble.user {
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-
-    .chat-bubble.ai {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-primary);
-      border-bottom-left-radius: 4px;
-    }
-
-    .chat-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--accent-cyan);
-      margin-bottom: var(--space-1);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .processing-indicator {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
-      padding: var(--space-4);
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: var(--radius-md);
-      margin-top: var(--space-2);
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-    
-    .processing-indicator:hover {
-      border-color: rgba(59, 130, 246, 0.4);
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15));
-    }
-
-    /* ─────────────────────────────────────────────
-       FEATURES SECTION
-    ───────────────────────────────────────────── */
-    .features {
-      padding: var(--space-32) 0;
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--border-subtle);
-      position: relative;
-    }
-    
-    .features::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: var(--space-16);
-    }
-
-    .section-eyebrow {
-      font-size: 12px;
-      font-weight: 700;
+      color: rgba(244, 228, 193, 0.5);
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: var(--accent-blue);
-      margin-bottom: var(--space-3);
     }
 
-    .section-title {
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      margin-bottom: var(--space-4);
-      text-wrap: balance;
+    .daw-logo {
+      height: 36px;
+      width: auto;
+      opacity: 0.7;
+      transition: all var(--duration-fast) var(--ease-out);
+      filter: brightness(1.2) saturate(0.8);
     }
+
+    .daw-logo:hover {
+      opacity: 1;
+      transform: translateY(-3px);
+      filter: brightness(1.4) saturate(1);
+    }
+
+    .demo-cta-card {
+      max-width: 700px;
+      margin: 64px auto 0;
+      background: rgba(26, 42, 62, 0.6);
+      border: 1px solid rgba(244, 228, 193, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: all var(--duration-normal) var(--ease-out);
+      animation: fadeUp 1s var(--ease-out) 1s backwards;
+      backdrop-filter: blur(10px);
+    }
+
+    .demo-cta-card:hover {
+      border-color: rgba(232, 185, 35, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .demo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .demo-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .demo-text { text-align: left; flex: 1; }
+    .demo-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--vangogh-cream); }
+    .demo-desc { font-size: 14px; color: rgba(244, 228, 193, 0.7); }
+
+    .demo-arrow {
+      width: 40px;
+      height: 40px;
+      background: rgba(244, 228, 193, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .demo-cta-card:hover .demo-arrow {
+      background: var(--vangogh-gold);
+      transform: translateX(4px);
+    }
+
+    .demo-arrow svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--vangogh-cream);
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    .features {
+      padding: 120px 24px;
+      background: linear-gradient(180deg, transparent 0%, rgba(26, 42, 62, 0.5) 20%, rgba(26, 42, 62, 0.5) 80%, transparent 100%);
+    }
+
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-eyebrow {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--vangogh-gold);
+      margin-bottom: 16px;
+    }
+    .section-title { font-size: clamp(32px, 5vw, 48px); font-weight: 800; line-height: 1.1; }
 
     .features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
+      gap: 24px;
     }
 
     .feature-card {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-8);
+      background: rgba(26, 42, 62, 0.5);
+      border: 1px solid rgba(244, 228, 193, 0.1);
+      border-radius: 20px;
+      padding: 40px;
       transition: all var(--duration-normal) var(--ease-out);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), transparent);
-      opacity: 0;
-      transition: opacity var(--duration-normal) var(--ease-out);
+      backdrop-filter: blur(10px);
     }
 
     .feature-card:hover {
-      background: var(--bg-elevated);
-      border-color: var(--border-medium);
-      transform: translateY(-4px);
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 40px rgba(59, 130, 246, 0.1);
-    }
-    
-    .feature-card:hover::before {
-      opacity: 1;
+      border-color: rgba(232, 185, 35, 0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
     }
 
     .feature-icon {
       width: 56px;
       height: 56px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15));
-      border: 1px solid rgba(59, 130, 246, 0.25);
-      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(232, 185, 35, 0.2), rgba(212, 112, 74, 0.2));
+      border: 1px solid rgba(232, 185, 35, 0.3);
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: var(--space-5);
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-    
-    .feature-card:hover .feature-icon {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(6, 182, 212, 0.25));
-      border-color: rgba(59, 130, 246, 0.4);
-      transform: scale(1.05);
+      margin-bottom: 24px;
     }
 
-    .feature-icon svg {
-      width: 28px;
-      height: 28px;
-      stroke: var(--accent-blue);
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-    
-    .feature-card:hover .feature-icon svg {
-      stroke: var(--accent-cyan);
-    }
+    .feature-icon svg { width: 28px; height: 28px; stroke: var(--vangogh-gold); fill: none; stroke-width: 2; }
+    .feature-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .feature-desc { font-size: 15px; color: rgba(244, 228, 193, 0.75); line-height: 1.7; }
 
-    .feature-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: var(--space-3);
-    }
-
-    .feature-desc {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-
-    /* ─────────────────────────────────────────────
-       COMPARISON SECTION
-    ───────────────────────────────────────────── */
-    .comparison {
-      padding: var(--space-32) 0;
-      position: relative;
-    }
-
-    .comparison-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin-top: var(--space-12);
-    }
-
-    .comparison-table th,
-    .comparison-table td {
-      padding: var(--space-4) var(--space-5);
-      text-align: left;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .comparison-table th {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-    }
-
-    .comparison-table td {
-      font-size: 14px;
-    }
-
-    .comparison-table tr {
-      transition: background var(--duration-fast) var(--ease-out);
-    }
-
-    .comparison-table tr:hover td {
-      background: var(--surface-hover);
-    }
-
-    .comparison-table .highlight {
-      background: rgba(59, 130, 246, 0.08);
-    }
-
-    .comparison-table .highlight td {
-      border-bottom-color: rgba(59, 130, 246, 0.3);
-    }
-
-    .check {
-      color: var(--success);
-      font-weight: 700;
-    }
-
-    .cross {
-      color: var(--error);
-    }
-
-    .price-tag {
-      display: inline-flex;
-      padding: var(--space-1) var(--space-3);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
-      font-size: 12px;
-      font-weight: 600;
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-
-    .price-tag.highlight {
-      background: rgba(59, 130, 246, 0.2);
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-    }
-    
-    .price-tag:hover {
-      border-color: var(--border-medium);
-    }
-
-    /* ─────────────────────────────────────────────
-       STATS SECTION
-    ───────────────────────────────────────────── */
-    .stats {
-      padding: var(--space-20) 0;
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-12);
-      text-align: center;
-    }
-
-    .stat-item {
-      position: relative;
-    }
-    
-    .stat-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      right: calc(var(--space-6) * -1);
-      top: 50%;
-      transform: translateY(-50%);
-      width: 1px;
-      height: 60%;
-      background: var(--border-subtle);
-    }
-
-    .stat-number {
-      font-size: clamp(40px, 6vw, 64px);
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, var(--text-primary), var(--accent-blue));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: var(--space-2);
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    /* ─────────────────────────────────────────────
-       CTA SECTION
-    ───────────────────────────────────────────── */
-    .cta {
-      padding: var(--space-32) 0;
-      text-align: center;
-      position: relative;
-    }
-    
-    .cta::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .cta-title {
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 800;
-      margin-bottom: var(--space-4);
-      position: relative;
-    }
-
-    .cta-subtitle {
-      font-size: 18px;
-      color: var(--text-secondary);
-      margin-bottom: var(--space-8);
-      position: relative;
-    }
-
-    .cta-button-large {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-5) var(--space-10);
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: var(--radius-lg);
-      cursor: pointer;
-      transition: all var(--duration-fast) var(--ease-out);
-      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.35);
-      text-decoration: none;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .cta-button-large::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left var(--duration-slow) var(--ease-out);
-    }
-    
-    .cta-button-large:hover::before {
-      left: 100%;
-    }
-
-    .cta-button-large:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.5);
-    }
-
-    .cta-features {
-      display: flex;
-      justify-content: center;
-      gap: var(--space-8);
-      margin-top: var(--space-8);
-      flex-wrap: wrap;
-      position: relative;
-    }
-
-    .cta-feature {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .cta-feature svg {
-      width: 16px;
-      height: 16px;
-      stroke: var(--success);
-      fill: none;
-      stroke-width: 2.5;
-    }
-
-    /* ─────────────────────────────────────────────
-       FOOTER
-    ───────────────────────────────────────────── */
     .footer {
-      padding: var(--space-10) 0;
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--border-subtle);
+      padding: 40px 24px;
+      border-top: 1px solid rgba(244, 228, 193, 0.1);
+      text-align: center;
     }
-
-    .footer-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: var(--space-4);
-    }
-
-    .footer-copyright {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .footer-links {
-      display: flex;
-      gap: var(--space-6);
-    }
-
-    .footer-link {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: all var(--duration-fast) var(--ease-out);
-      position: relative;
-    }
-    
-    .footer-link::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--text-secondary);
-      transition: width var(--duration-fast) var(--ease-out);
-    }
-
-    .footer-link:hover {
-      color: var(--text-primary);
-    }
-    
-    .footer-link:hover::after {
-      width: 100%;
-    }
-
-    /* ─────────────────────────────────────────────
-       LOADING STATES
-    ───────────────────────────────────────────── */
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.8s linear infinite;
-    }
-
-    /* ─────────────────────────────────────────────
-       RESPONSIVE
-    ───────────────────────────────────────────── */
-    @media (max-width: 1024px) {
-      .features-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+    .footer-text { font-size: 14px; color: rgba(244, 228, 193, 0.5); }
 
     @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: var(--space-8);
-      }
-      
-      .stat-item:not(:last-child)::after {
-        display: none;
-      }
-
-      .comparison-table {
-        font-size: 12px;
-      }
-
-      .comparison-table th,
-      .comparison-table td {
-        padding: var(--space-3) var(--space-2);
-      }
-
-      .form-container {
-        flex-direction: column;
-      }
-
-      .form-button {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .trust-badges {
-        gap: var(--space-3);
-      }
-      
-      .waveform-container {
-        width: 95%;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .hero-title {
-        font-size: 36px;
-      }
-      
-      .section-title {
-        font-size: 28px;
-      }
-      
-      .cta-features {
-        flex-direction: column;
-        gap: var(--space-4);
-      }
-    }
-
-    /* Hide scrollbar but keep functionality */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-medium);
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--border-strong);
+      .features-grid { grid-template-columns: 1fr; }
+      .daw-logo { height: 28px; }
+      .demo-cta-card { flex-direction: column; text-align: center; padding: 32px 24px; }
+      .demo-text { text-align: center; }
     }
   </style>
 </head>
 <body>
+  <div class="starry-bg"></div>
+  <div class="stars">
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+  </div>
+  <div class="vignette"></div>
 
-  <div class="noise-overlay"></div>
-
-  <nav class="nav" id="navbar">
-    <div class="container">
-      <div class="nav-inner">
-        <a href="#" class="logo">
-          <div class="logo-icon">
-            <svg viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
-          </div>
-          NeuralMix
-        </a>
-        <div class="nav-links">
-          <a href="#features" class="nav-link">Features</a>
-          <a href="#comparison" class="nav-link">Comparison</a>
-          <a href="#waitlist" class="nav-link">Early Access</a>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
         </div>
+        NeuralMix
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="demo.html" class="nav-link">Try Demo</a>
       </div>
     </div>
   </nav>
 
-  <section class="hero" id="waitlist">
-    <div class="hero-glow"></div>
-    
-    <div class="waveform-container">
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-      <div class="waveform-bar"></div>
-    </div>
-    
-    <div class="container">
-      <div class="hero-content">
-        <div class="hero-badge">
-          <span class="hero-badge-dot"></span>
-          Now accepting early access
-        </div>
-        
-        <h1 class="hero-title">
-          Your AI<br>
-          <span class="hero-title-gradient">Co-Pilot for Music Mixing</span>
-        </h1>
-        
-        <p class="hero-subtitle">
-          Upload your stems. Tell it what you want. NeuralMix applies 
-          <strong>professional-grade FX chains</strong> per-track — directly inside your DAW.
-        </p>
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Your AI<br>
+        <span class="hero-title-accent">Co-Pilot</span> for Music Mixing
+      </h1>
+      <p class="hero-subtitle">
+        Upload your stems. Tell it what you want. NeuralMix applies professional-grade FX chains per-track — directly inside your DAW.
+      </p>
 
-        <div class="hero-counter">
-          <span>Join</span>
-          <span class="hero-counter-number" id="waitlist-count">0</span>
-          <span>producers getting early access</span>
-        </div>
-
-        <div class="waitlist-form">
-          <div class="form-container" id="form-container">
-            <input 
-              type="email" 
-              class="form-input" 
-              id="email-input" 
-              placeholder="Enter your email" 
-              autocomplete="email"
-            >
-            <button class="form-button" id="submit-btn" onclick="submitEmail()">
-              <span id="btn-text">Get Early Access</span>
-            </button>
-          </div>
-          <div class="form-error" id="form-error" style="display: none;"></div>
-        </div>
-
-        <div class="trust-badges">
-          <span class="trust-label">Works inside</span>
-          <span class="daw-badge">Ableton Live</span>
-          <span class="daw-badge">Logic Pro</span>
-          <span class="daw-badge">FL Studio</span>
-        </div>
-
-        <div class="visual-demo">
-          <a href="demo.html" class="demo-card">
-            <div class="demo-header">
-              <div class="demo-dots">
-                <div class="demo-dot demo-dot-red"></div>
-                <div class="demo-dot demo-dot-yellow"></div>
-                <div class="demo-dot demo-dot-green"></div>
-              </div>
-              <span class="demo-title">NeuralMix · Interactive Demo</span>
-            </div>
-            <div class="demo-body">
-              <div class="chat-message user">
-                <div class="chat-bubble user">
-                  "Make the vocals punchier and add warmth to the guitar. Keep the drums tight."
-                </div>
-              </div>
-              <div class="chat-message">
-                <div class="chat-bubble ai">
-                  <div class="chat-label">NeuralMix AI</div>
-                  Analyzing your stems. I'll add +3dB presence to vocals with light saturation, apply analog-style warmth to guitar, and tighten drum transients.
-                </div>
-              </div>
-              <div class="processing-indicator">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2" style="flex-shrink: 0;">
-                  <polygon points="5 3 19 12 5 21 5 3"/>
-                </svg>
-                <div style="text-align: left; flex: 1;">
-                  <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Try the Interactive Demo</div>
-                  <div style="font-size: 13px; color: var(--text-secondary);">Type natural language commands and watch the AI reason and apply FX in real-time. Powered by MiniMax M2.7.</div>
-                </div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2.5" style="flex-shrink: 0;">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
-                </svg>
-              </div>
-            </div>
-          </a>
-        </div>
+      <div class="hero-counter">
+        <span>Join</span>
+        <span class="hero-counter-number" id="waitlist-count">0</span>
+        <span>producers getting early access</span>
       </div>
+
+      <div class="waitlist-form">
+        <div class="form-container" id="form-container">
+          <input type="email" class="form-input" id="email-input" placeholder="Enter your email" autocomplete="email">
+          <button class="form-button" id="submit-btn" onclick="submitEmail()">
+            <span id="btn-text">Get Early Access</span>
+          </button>
+        </div>
+        <div class="form-error" id="form-error" style="display: none; color: #ff6b6b; margin-top: 12px; font-size: 14px;"></div>
+      </div>
+
+      <div class="daw-logos">
+        <span class="daw-label">Works inside</span>
+        <img src="ableton-logo.png" alt="Ableton Live" class="daw-logo">
+        <img src="logic-logo.png" alt="Logic Pro" class="daw-logo">
+        <img src="fl-studio-logo.png" alt="FL Studio" class="daw-logo">
+      </div>
+
+      <a href="demo.html" class="demo-cta-card">
+        <div class="demo-icon">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div class="demo-text">
+          <div class="demo-title">Try the Interactive Demo</div>
+          <div class="demo-desc">Type natural language commands and watch the AI reason and apply FX in real-time</div>
+        </div>
+        <div class="demo-arrow">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
     </div>
   </section>
 
   <section class="features" id="features">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-eyebrow">Why NeuralMix</div>
-        <h2 class="section-title">
-          The mixing co-pilot<br>
-          <span style="color: var(--accent-blue)">you've been waiting for</span>
-        </h2>
-      </div>
-
-      <div class="features-grid">
-        <div class="feature-card animate-on-scroll">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          </div>
-          <h3 class="feature-title">Natural Language Control</h3>
-          <p class="feature-desc">
-            "Make the vocals cut through" or "add low-end warmth" — no EQ curves, no compressor ratios. Just describe what you hear.
-          </p>
-        </div>
-
-        <div class="feature-card animate-on-scroll stagger-1">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-          </div>
-          <h3 class="feature-title">Stem-Level Precision</h3>
-          <p class="feature-desc">
-            Each track gets its own FX chain. Tweak vocals, drums, bass, and guitar individually — not a stereo black-box like other AI tools.
-          </p>
-        </div>
-
-        <div class="feature-card animate-on-scroll stagger-2">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <h3 class="feature-title">DAW-Native Workflow</h3>
-          <p class="feature-desc">
-            No exports, no round-trips. NeuralMix lives inside Ableton, Logic, and FL Studio. Your mix, your workflow, enhanced.
-          </p>
-        </div>
-      </div>
+    <div class="section-header">
+      <div class="section-eyebrow">Why NeuralMix</div>
+      <h2 class="section-title">Mix with confidence</h2>
     </div>
-  </section>
-
-  <section class="comparison" id="comparison">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-eyebrow">Comparison</div>
-        <h2 class="section-title">
-          Why settle for<br>
-          <span style="color: var(--accent-blue)">less control?</span>
-        </h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3 class="feature-title">Natural Language</h3>
+        <p class="feature-desc">"Make vocals cut through" or "add warmth" — no knobs, no curves. Just describe what you hear.</p>
       </div>
-
-      <table class="comparison-table animate-on-scroll">
-        <thead>
-          <tr>
-            <th>Feature</th>
-            <th>Human Engineer</th>
-            <th>LANDR / eMastered</th>
-            <th>Logic Auto Mix</th>
-            <th style="color: var(--accent-blue)">NeuralMix</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Price</strong></td>
-            <td><span class="price-tag">$200-800/track</span></td>
-            <td><span class="price-tag">$25-50/mo</span></td>
-            <td><span class="price-tag">Free</span></td>
-            <td class="highlight"><span class="price-tag highlight">$19/mo</span></td>
-          </tr>
-          <tr>
-            <td><strong>Control</strong></td>
-            <td><span class="check">Full</span></td>
-            <td><span class="cross">None</span></td>
-            <td><span class="cross">Minimal</span></td>
-            <td class="highlight"><span class="check">Stem-level</span></td>
-          </tr>
-          <tr>
-            <td><strong>Speed</strong></td>
-            <td>2-3 days</td>
-            <td>Minutes</td>
-            <td>Seconds</td>
-            <td class="highlight">Seconds</td>
-          </tr>
-          <tr>
-            <td><strong>Learning Curve</strong></td>
-            <td>N/A</td>
-            <td>Low</td>
-            <td>Low</td>
-            <td class="highlight"><span class="check">Zero</span></td>
-          </tr>
-          <tr>
-            <td><strong>Works in DAW</strong></td>
-            <td><span class="cross">No</span></td>
-            <td><span class="cross">No</span></td>
-            <td><span class="check">Yes</span></td>
-            <td class="highlight"><span class="check">Yes</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="stats">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item animate-on-scroll">
-          <div class="stat-number">12M</div>
-          <div class="stat-label">Artists on Spotify needing quality mixes</div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
         </div>
-        <div class="stat-item animate-on-scroll stagger-1">
-          <div class="stat-number">500K</div>
-          <div class="stat-label">Indie creators releasing monthly</div>
-        </div>
-        <div class="stat-item animate-on-scroll stagger-2">
-          <div class="stat-number">66%</div>
-          <div class="stat-label">Of creators willing to adopt AI tools</div>
-        </div>
+        <h3 class="feature-title">Stem-Level Control</h3>
+        <p class="feature-desc">Each track gets its own FX chain. Not a stereo black-box — true per-track precision.</p>
       </div>
-    </div>
-  </section>
-
-  <section class="cta">
-    <div class="container-narrow">
-      <h2 class="cta-title animate-on-scroll">
-        Ready to mix<br>
-        <span style="color: var(--accent-blue)">like a pro?</span>
-      </h2>
-      <p class="cta-subtitle animate-on-scroll">
-        Join the waitlist. Be first to experience the future of AI-assisted mixing.
-      </p>
-      <a href="#waitlist" class="cta-button-large animate-on-scroll">
-        Get Early Access
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </a>
-      <div class="cta-features">
-        <div class="cta-feature animate-on-scroll stagger-1">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Free during beta</span>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
-        <div class="cta-feature animate-on-scroll stagger-2">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>No credit card required</span>
-        </div>
-        <div class="cta-feature animate-on-scroll stagger-3">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Cancel anytime</span>
-        </div>
+        <h3 class="feature-title">DAW-Native</h3>
+        <p class="feature-desc">No exports, no round-trips. Lives inside Ableton, Logic, FL Studio. Your workflow, enhanced.</p>
       </div>
     </div>
   </section>
 
   <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div class="footer-copyright">
-          © 2026 NeuralMix. All rights reserved.
-        </div>
-        <div class="footer-links">
-          <a href="#" class="footer-link">Privacy</a>
-          <a href="#" class="footer-link">Terms</a>
-          <a href="#" class="footer-link">Contact</a>
-        </div>
-      </div>
-    </div>
+    <div class="footer-text">© 2026 NeuralMix. All rights reserved.</div>
   </footer>
 
   <script>
-    // Configuration
     const SUPABASE_URL = 'https://iikrvgjfkuijcpvdwzvv.supabase.co';
     
-    // Scroll-triggered animations
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        }
-      });
-    }, observerOptions);
-    
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-      observer.observe(el);
-    });
-    
-    // Navbar scroll effect
-    const navbar = document.getElementById('navbar');
-    let lastScroll = 0;
-    
-    window.addEventListener('scroll', () => {
-      const currentScroll = window.pageYOffset;
-      
-      if (currentScroll > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-      
-      lastScroll = currentScroll;
-    }, { passive: true });
-    
-    // Fetch waitlist count
     async function fetchWaitlistCount() {
       try {
         const response = await fetch(`${SUPABASE_URL}/functions/v1/total-users`);
@@ -1673,33 +611,22 @@
             animateNumber(countElement, 0, data.total, 1500);
           }
         }
-      } catch (error) {
-        console.error('Failed to fetch waitlist count:', error);
-      }
+      } catch (error) { console.error('Failed to fetch count:', error); }
     }
 
-    // Number animation with easeOutQuart
     function animateNumber(element, start, end, duration) {
       const range = end - start;
       const startTime = performance.now();
-      
       function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-        const current = Math.floor(start + (range * easeOutQuart));
-        
-        element.textContent = current.toLocaleString();
-        
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
+        element.textContent = Math.floor(start + (range * easeOutQuart)).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
       }
-      
       requestAnimationFrame(update);
     }
 
-    // Submit email to waitlist
     async function submitEmail() {
       const emailInput = document.getElementById('email-input');
       const submitBtn = document.getElementById('submit-btn');
@@ -1707,52 +634,32 @@
       const formError = document.getElementById('form-error');
       
       const email = emailInput.value.trim();
-      
-      // Validation
-      if (!email) {
-        showError('Please enter your email');
-        return;
-      }
+      if (!email) { showError('Please enter your email'); return; }
       
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showError('Please enter a valid email');
-        return;
-      }
+      if (!emailRegex.test(email)) { showError('Please enter a valid email'); return; }
       
-      // Check for referral code in URL
       const urlParams = new URLSearchParams(window.location.search);
       const referralCode = urlParams.get('ref');
       
-      // Set loading state
       submitBtn.disabled = true;
-      btnText.innerHTML = '<span class="loading"></span>';
+      btnText.innerHTML = '...';
       
       try {
         const response = await fetch(`${SUPABASE_URL}/functions/v1/signup`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: email,
-            referral_code: referralCode,
-            source: document.referrer.includes('reddit') ? 'reddit' : 
-                    document.referrer.includes('twitter') || document.referrer.includes('x.com') ? 'x' : 'direct'
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, referral_code: referralCode, source: 'direct' })
         });
-        
         const data = await response.json();
-        
         if (response.ok) {
           window.location.href = `/success.html?ref=${data.referral_code}`;
         } else {
           submitBtn.disabled = false;
           btnText.textContent = 'Get Early Access';
-          showError(data.error || 'Something went wrong. Please try again.');
+          showError(data.error || 'Something went wrong');
         }
       } catch (error) {
-        console.error('Signup error:', error);
         submitBtn.disabled = false;
         btnText.textContent = 'Get Early Access';
         showError('Network error. Please try again.');
@@ -1763,24 +670,15 @@
       const formError = document.getElementById('form-error');
       formError.textContent = message;
       formError.style.display = 'block';
-      setTimeout(() => {
-        formError.style.display = 'none';
-      }, 5000);
+      setTimeout(() => formError.style.display = 'none', 5000);
     }
 
-    // Handle Enter key
     document.getElementById('email-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        submitEmail();
-      }
+      if (e.key === 'Enter') submitEmail();
     });
 
-    // Fetch count on page load
     fetchWaitlistCount();
-    
-    // Refresh count every 30 seconds
     setInterval(fetchWaitlistCount, 30000);
   </script>
-
 </body>
 </html>

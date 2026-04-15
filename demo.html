@@ -4,66 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeuralMix Demo — AI Co-Pilot for Music Mixing</title>
-  <meta name="description" content="Try NeuralMix demo - AI that mixes your tracks with natural language commands. See it reason and apply FX in real-time.">
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-primary: #05070a;
-      --bg-secondary: #0a0e17;
-      --bg-tertiary: #111827;
-      --bg-elevated: #1a2234;
-      
-      --accent-blue: #3b82f6;
-      --accent-blue-dark: #2563eb;
-      --accent-cyan: #06b6d4;
-      --accent-cyan-light: #67e8f9;
+      --vangogh-navy: #0a1628;
+      --vangogh-deep: #1a2a3e;
+      --vangogh-blue: #2a4360;
+      --vangogh-gold: #e8b923;
+      --vangogh-cream: #f4e4c1;
+      --vangogh-orange: #d4704a;
       --accent-green: #22c55e;
       --accent-purple: #8b5cf6;
-      --accent-orange: #f97316;
-      
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-tertiary: #64748b;
-      --text-muted: #475569;
-      
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --border-medium: rgba(255, 255, 255, 0.1);
-      --border-strong: rgba(255, 255, 255, 0.15);
-      --surface-hover: rgba(255, 255, 255, 0.03);
-      
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --radius-xl: 20px;
-      --radius-full: 9999px;
       
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-      
-      --duration-fast: 200ms;
-      --duration-normal: 300ms;
-      --duration-slow: 500ms;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes pageLoad {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
     @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-      50% { opacity: 0.8; box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.2); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(232, 185, 35, 0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(232, 185, 35, 0.1); }
     }
 
     @keyframes waveform {
@@ -71,52 +44,13 @@
       50% { transform: scaleY(1); opacity: 0.8; }
     }
 
-    @keyframes glowPulse {
-      0%, 100% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.1); }
-      50% { box-shadow: 0 0 60px rgba(59, 130, 246, 0.2); }
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    @keyframes typing {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-4px); }
-    }
-
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes fxPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); background: rgba(59,130,246,0.3); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes borderGlow {
-      0%, 100% { border-color: var(--border-subtle); }
-      50% { border-color: rgba(59, 130, 246, 0.3); }
-    }
-
     body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
+      background: var(--vangogh-navy);
+      color: var(--vangogh-cream);
       line-height: 1.5;
       overflow-x: hidden;
-    }
-
-    .noise-overlay {
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
+      animation: pageLoad 0.6s var(--ease-out);
     }
 
     .demo-container {
@@ -126,7 +60,6 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      animation: fadeUp 0.6s var(--ease-out);
     }
 
     .demo-header {
@@ -135,7 +68,8 @@
       justify-content: space-between;
       margin-bottom: 24px;
       padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 1px solid rgba(244, 228, 193, 0.1);
+      animation: fadeUp 0.5s var(--ease-out) 0.1s backwards;
     }
 
     .demo-logo {
@@ -144,69 +78,46 @@
       gap: 12px;
       font-weight: 800;
       font-size: 22px;
-      letter-spacing: -0.5px;
-      transition: transform var(--duration-fast) var(--ease-out);
-    }
-
-    .demo-logo:hover {
-      transform: scale(1.02);
+      text-decoration: none;
+      color: inherit;
     }
 
     .demo-logo-icon {
       width: 36px;
       height: 36px;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-      transition: box-shadow var(--duration-fast) var(--ease-out);
-    }
-
-    .demo-logo:hover .demo-logo-icon {
-      box-shadow: 0 6px 30px rgba(59, 130, 246, 0.4);
     }
 
     .demo-badge {
       padding: 8px 16px;
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: var(--radius-full);
+      background: rgba(232, 185, 35, 0.1);
+      border: 1px solid rgba(232, 185, 35, 0.2);
+      border-radius: 50px;
       font-size: 12px;
       font-weight: 600;
-      color: var(--accent-blue);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      animation: pulse 2s ease-in-out infinite;
+      color: var(--vangogh-gold);
     }
 
     .demo-main {
       display: grid;
-      grid-template-columns: 1fr 400px;
+      grid-template-columns: 1fr 420px;
       gap: 24px;
       flex: 1;
       min-height: 0;
     }
 
     .daw-panel {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
+      background: var(--vangogh-deep);
+      border: 1px solid rgba(244, 228, 193, 0.1);
+      border-radius: 16px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(59, 130, 246, 0.05);
-      transition: all var(--duration-normal) var(--ease-out);
-    }
-
-    .daw-panel:hover {
-      border-color: var(--border-medium);
-      box-shadow: 
-        0 25px 70px rgba(0, 0, 0, 0.6),
-        0 0 50px rgba(59, 130, 246, 0.08);
+      animation: fadeUp 0.5s var(--ease-out) 0.2s backwards;
     }
 
     .daw-header {
@@ -214,67 +125,41 @@
       align-items: center;
       justify-content: space-between;
       padding: 16px 20px;
-      background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(244, 228, 193, 0.05);
+      border-bottom: 1px solid rgba(244, 228, 193, 0.1);
     }
 
     .daw-title {
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-secondary);
+      color: rgba(244, 228, 193, 0.7);
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .daw-controls {
-      display: flex;
-      gap: 10px;
-    }
+    .daw-controls { display: flex; gap: 10px; }
 
     .daw-btn {
       padding: 8px 16px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
+      background: rgba(244, 228, 193, 0.08);
+      border: 1px solid rgba(244, 228, 193, 0.15);
+      border-radius: 8px;
+      color: rgba(244, 228, 193, 0.8);
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
-      transition: all var(--duration-fast) var(--ease-out);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .daw-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-      transition: left var(--duration-slow) var(--ease-out);
-    }
-
-    .daw-btn:hover::before {
-      left: 100%;
+      transition: all 0.2s;
     }
 
     .daw-btn:hover {
-      background: var(--bg-elevated);
-      border-color: var(--border-strong);
-      color: var(--text-primary);
-      transform: translateY(-1px);
-    }
-
-    .daw-btn:active {
-      transform: translateY(0);
+      background: rgba(244, 228, 193, 0.12);
+      border-color: rgba(244, 228, 193, 0.25);
+      color: var(--vangogh-cream);
     }
 
     .daw-btn.active {
-      background: rgba(59, 130, 246, 0.2);
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+      background: rgba(232, 185, 35, 0.2);
+      border-color: var(--vangogh-gold);
+      color: var(--vangogh-gold);
     }
 
     .tracks-container {
@@ -285,169 +170,105 @@
 
     .track {
       display: grid;
-      grid-template-columns: 150px 1fr 220px;
+      grid-template-columns: 150px 1fr 240px;
       gap: 16px;
       padding: 16px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
+      background: rgba(244, 228, 193, 0.05);
+      border: 1px solid rgba(244, 228, 193, 0.08);
+      border-radius: 12px;
       margin-bottom: 12px;
-      transition: all var(--duration-normal) var(--ease-out);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .track::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), transparent);
-      opacity: 0;
-      transition: opacity var(--duration-normal) var(--ease-out);
-    }
-
-    .track:hover::before {
-      opacity: 1;
-    }
-
-    .track:hover {
-      border-color: var(--border-medium);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s;
     }
 
     .track.processing {
-      border-color: rgba(59, 130, 246, 0.4);
-      animation: borderGlow 1.5s ease-in-out infinite;
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+      border-color: rgba(232, 185, 35, 0.4);
+      animation: pulse 1.5s ease-in-out infinite;
     }
 
-    .track-info {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .track-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .track-type {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-family: 'JetBrains Mono', monospace;
-    }
+    .track-info { display: flex; flex-direction: column; gap: 6px; }
+    .track-name { font-size: 14px; font-weight: 600; color: var(--vangogh-cream); }
+    .track-type { font-size: 11px; color: rgba(244, 228, 193, 0.5); text-transform: uppercase; letter-spacing: 0.5px; }
 
     .track-waveform {
       display: flex;
       align-items: center;
       gap: 2px;
       height: 56px;
-      background: var(--bg-primary);
-      border-radius: var(--radius-sm);
+      background: rgba(10, 22, 40, 0.5);
+      border-radius: 8px;
       padding: 0 10px;
       overflow: hidden;
     }
 
     .waveform-bar {
       flex: 1;
-      background: linear-gradient(to top, var(--accent-blue), var(--accent-cyan));
+      background: linear-gradient(to top, var(--vangogh-gold), var(--vangogh-orange));
       border-radius: 1px;
       opacity: 0.6;
       animation: waveform 1.2s ease-in-out infinite;
       min-height: 4px;
     }
 
-    .track-fx {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .track-fx { display: flex; flex-direction: column; gap: 6px; }
 
     .fx-slot {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      font-size: 11px;
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-
-    .fx-slot:hover {
-      border-color: var(--border-medium);
-      background: var(--surface-hover);
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(244, 228, 193, 0.08);
+      border-radius: 8px;
+      font-size: 12px;
+      transition: all 0.2s;
     }
 
     .fx-slot.active {
-      background: rgba(59, 130, 246, 0.15);
-      border-color: rgba(59, 130, 246, 0.3);
+      background: rgba(232, 185, 35, 0.15);
+      border-color: rgba(232, 185, 35, 0.3);
     }
 
-    .fx-slot.newly-added {
-      animation: fxPulse 0.5s ease-out;
+    .fx-slot.newly-added { animation: fxPulse 0.5s ease-out; }
+
+    @keyframes fxPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); background: rgba(232, 185, 35, 0.3); }
+      100% { transform: scale(1); }
     }
 
     .fx-name {
       font-weight: 600;
-      color: var(--text-secondary);
-      transition: color var(--duration-fast) var(--ease-out);
+      color: rgba(244, 228, 193, 0.8);
+      transition: color 0.2s;
     }
 
-    .fx-name.active {
-      color: var(--accent-cyan);
-    }
+    .fx-name.active { color: var(--vangogh-gold); }
 
     .fx-param {
       margin-left: auto;
       font-family: 'JetBrains Mono', monospace;
-      color: var(--text-muted);
+      color: rgba(244, 228, 193, 0.5);
       font-size: 10px;
     }
 
     .chat-panel {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
+      background: var(--vangogh-deep);
+      border: 1px solid rgba(244, 228, 193, 0.1);
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(59, 130, 246, 0.05);
-      transition: all var(--duration-normal) var(--ease-out);
-    }
-
-    .chat-panel:hover {
-      border-color: var(--border-medium);
+      animation: fadeUp 0.5s var(--ease-out) 0.3s backwards;
     }
 
     .chat-header {
       padding: 20px;
-      background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(244, 228, 193, 0.05);
+      border-bottom: 1px solid rgba(244, 228, 193, 0.1);
     }
 
-    .chat-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .chat-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
+    .chat-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .chat-subtitle { font-size: 12px; color: rgba(244, 228, 193, 0.5); }
 
     .chat-messages {
       flex: 1;
@@ -461,220 +282,237 @@
     .message {
       max-width: 90%;
       padding: 14px 18px;
-      border-radius: var(--radius-lg);
+      border-radius: 14px;
       font-size: 14px;
       line-height: 1.6;
-      animation: slideInRight 0.3s var(--ease-out);
-      transition: transform var(--duration-fast) var(--ease-out);
-    }
-
-    .message:hover {
-      transform: scale(1.01);
+      animation: fadeUp 0.3s var(--ease-out);
     }
 
     .message.user {
       align-self: flex-end;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-      color: white;
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
+      color: var(--vangogh-navy);
       border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     }
 
     .message.ai {
       align-self: flex-start;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-primary);
+      background: rgba(244, 228, 193, 0.08);
+      border: 1px solid rgba(244, 228, 193, 0.1);
+      color: var(--vangogh-cream);
       border-bottom-left-radius: 4px;
-    }
-
-    .message.system {
-      align-self: center;
-      background: transparent;
-      border: 1px dashed var(--border-medium);
-      color: var(--text-muted);
-      font-size: 12px;
-      padding: 10px 16px;
     }
 
     .reasoning-block {
       margin-top: 12px;
-      padding: 14px;
-      background: var(--bg-primary);
-      border-radius: var(--radius-md);
+      padding: 16px;
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 12px;
       border-left: 3px solid var(--accent-purple);
-      transition: all var(--duration-fast) var(--ease-out);
     }
 
-    .reasoning-block:hover {
-      background: var(--bg-elevated);
-      border-left-width: 4px;
+    .reasoning-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .reasoning-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--accent-purple);
     }
 
     .reasoning-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
+      color: var(--accent-purple);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--accent-purple);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .reasoning-text {
-      font-size: 12px;
-      color: var(--text-secondary);
+      font-size: 13px;
+      color: rgba(244, 228, 193, 0.8);
       line-height: 1.6;
     }
 
     .tool-call {
       margin-top: 12px;
-      padding: 14px;
       background: rgba(34, 197, 94, 0.1);
       border: 1px solid rgba(34, 197, 94, 0.2);
-      border-radius: var(--radius-md);
-      transition: all var(--duration-fast) var(--ease-out);
-    }
-
-    .tool-call:hover {
-      border-color: rgba(34, 197, 94, 0.3);
-      background: rgba(34, 197, 94, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     .tool-call-header {
       display: flex;
       align-items: center;
       gap: 8px;
+      padding: 12px 16px;
+      background: rgba(34, 197, 94, 0.15);
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--accent-green);
-      margin-bottom: 10px;
     }
 
-    .tool-call-content {
-      font-family: 'JetBrains Mono', monospace;
+    .tool-call-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .fx-list {
+      padding: 12px 16px;
+    }
+
+    .fx-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(244, 228, 193, 0.05);
+    }
+
+    .fx-item:last-child { border-bottom: none; }
+
+    .fx-track-name {
       font-size: 11px;
-      color: var(--text-secondary);
-      background: var(--bg-primary);
-      padding: 12px;
-      border-radius: var(--radius-sm);
-      overflow-x: auto;
-      border: 1px solid var(--border-subtle);
+      font-weight: 600;
+      color: rgba(244, 228, 193, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      min-width: 80px;
+    }
+
+    .fx-effect-name {
+      font-weight: 600;
+      color: var(--vangogh-gold);
+      font-size: 13px;
+    }
+
+    .fx-params {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .param-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(244, 228, 193, 0.1);
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .param-label {
+      color: rgba(244, 228, 193, 0.5);
+    }
+
+    .param-value {
+      color: var(--vangogh-cream);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .param-value:hover {
+      background: rgba(232, 185, 35, 0.2);
+      border-color: rgba(232, 185, 35, 0.3);
+    }
+
+    .param-value.editing {
+      background: rgba(232, 185, 35, 0.3);
+      border-color: var(--vangogh-gold);
+      outline: none;
+      min-width: 40px;
+      text-align: center;
     }
 
     .chat-input-container {
       padding: 20px;
-      border-top: 1px solid var(--border-subtle);
-      background: var(--bg-tertiary);
+      border-top: 1px solid rgba(244, 228, 193, 0.1);
+      background: rgba(244, 228, 193, 0.05);
     }
 
     .quick-prompts {
       display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 12px;
       overflow-x: auto;
       padding-bottom: 4px;
     }
 
     .quick-prompt {
       padding: 8px 14px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-full);
+      background: rgba(244, 228, 193, 0.08);
+      border: 1px solid rgba(244, 228, 193, 0.15);
+      border-radius: 50px;
       font-size: 12px;
-      color: var(--text-secondary);
+      color: rgba(244, 228, 193, 0.8);
       cursor: pointer;
       white-space: nowrap;
-      transition: all var(--duration-fast) var(--ease-out);
+      transition: all 0.2s;
       font-weight: 500;
     }
 
     .quick-prompt:hover {
-      background: var(--bg-elevated);
-      border-color: var(--accent-blue);
-      color: var(--text-primary);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      background: rgba(232, 185, 35, 0.15);
+      border-color: rgba(232, 185, 35, 0.3);
+      color: var(--vangogh-gold);
     }
 
-    .quick-prompt:active {
-      transform: translateY(0);
-    }
-
-    .chat-input-wrapper {
-      display: flex;
-      gap: 10px;
-    }
+    .chat-input-wrapper { display: flex; gap: 10px; }
 
     .chat-input {
       flex: 1;
       padding: 14px 18px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-lg);
-      color: var(--text-primary);
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(244, 228, 193, 0.15);
+      border-radius: 12px;
+      color: var(--vangogh-cream);
       font-size: 14px;
       outline: none;
-      transition: all var(--duration-fast) var(--ease-out);
+      transition: all 0.2s;
     }
 
     .chat-input:focus {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: var(--vangogh-gold);
+      box-shadow: 0 0 0 3px rgba(232, 185, 35, 0.15);
     }
 
-    .chat-input::placeholder {
-      color: var(--text-muted);
-    }
+    .chat-input::placeholder { color: rgba(244, 228, 193, 0.4); }
 
     .chat-send {
       padding: 14px 24px;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
       border: none;
-      border-radius: var(--radius-lg);
-      color: white;
+      border-radius: 12px;
+      color: var(--vangogh-navy);
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: all var(--duration-fast) var(--ease-out);
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .chat-send::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left var(--duration-slow) var(--ease-out);
-    }
-
-    .chat-send:hover::before {
-      left: 100%;
+      transition: all 0.2s;
     }
 
     .chat-send:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 20px rgba(232, 185, 35, 0.4);
     }
 
-    .chat-send:active {
-      transform: translateY(0);
-    }
-
-    .chat-send:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .typing-indicator {
       display: flex;
@@ -685,7 +523,7 @@
     .typing-dot {
       width: 7px;
       height: 7px;
-      background: var(--text-muted);
+      background: rgba(244, 228, 193, 0.5);
       border-radius: 50%;
       animation: typing 1.4s infinite;
     }
@@ -693,147 +531,57 @@
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
     .demo-footer {
       margin-top: 24px;
       padding: 32px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(232, 185, 35, 0.1), rgba(212, 112, 74, 0.1));
+      border: 1px solid rgba(232, 185, 35, 0.2);
+      border-radius: 16px;
       text-align: center;
-      animation: fadeUp 0.6s var(--ease-out) 0.3s backwards;
-      position: relative;
-      overflow: hidden;
     }
 
-    .demo-footer::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 20%;
-      right: 20%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.4), transparent);
-    }
-
-    .demo-footer-title {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-
-    .demo-footer-text {
-      font-size: 15px;
-      color: var(--text-secondary);
-      margin-bottom: 24px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
+    .demo-footer-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+    .demo-footer-text { font-size: 15px; color: rgba(244, 228, 193, 0.7); margin-bottom: 24px; }
 
     .demo-cta {
       display: inline-flex;
       align-items: center;
       gap: 10px;
       padding: 16px 32px;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-      color: white;
+      background: linear-gradient(135deg, var(--vangogh-gold), var(--vangogh-orange));
+      color: var(--vangogh-navy);
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       text-decoration: none;
-      border-radius: var(--radius-full);
-      transition: all var(--duration-fast) var(--ease-out);
-      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.35);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .demo-cta::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left var(--duration-slow) var(--ease-out);
-    }
-
-    .demo-cta:hover::before {
-      left: 100%;
+      border-radius: 50px;
+      transition: all 0.2s;
     }
 
     .demo-cta:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.5);
-    }
-
-    .demo-cta:active {
-      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(232, 185, 35, 0.4);
     }
 
     @media (max-width: 1024px) {
-      .demo-main {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr auto;
-      }
-      
-      .chat-panel {
-        height: 450px;
-      }
+      .demo-main { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+      .chat-panel { height: 500px; }
     }
 
     @media (max-width: 640px) {
-      .demo-container {
-        padding: 16px;
-      }
-      
-      .track {
-        grid-template-columns: 100px 1fr;
-      }
-      
-      .track-fx {
-        grid-column: 1 / -1;
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      
-      .demo-footer {
-        padding: 24px 20px;
-      }
-      
-      .demo-footer-title {
-        font-size: 20px;
-      }
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-medium);
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--border-strong);
+      .track { grid-template-columns: 100px 1fr; }
+      .track-fx { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
     }
   </style>
 </head>
 <body>
-
-  <div class="noise-overlay"></div>
-
   <div class="demo-container">
     <header class="demo-header">
-      <a href="index.html" class="demo-logo" style="text-decoration: none; color: inherit;">
+      <a href="index.html" class="demo-logo">
         <div class="demo-logo-icon">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2.5">
             <path d="M3 12h4l3-9 4 18 3-9h4"/>
@@ -853,9 +601,7 @@
             <button class="daw-btn" onclick="resetDemo()">↺ Reset</button>
           </div>
         </div>
-        
-        <div class="tracks-container" id="tracks-container">
-        </div>
+        <div class="tracks-container" id="tracks-container"></div>
       </div>
 
       <div class="chat-panel">
@@ -879,13 +625,7 @@
           </div>
           
           <div class="chat-input-wrapper">
-            <input 
-              type="text" 
-              class="chat-input" 
-              id="chat-input" 
-              placeholder="Tell me what you want..."
-              onkeypress="if(event.key==='Enter')sendMessage()"
-            >
+            <input type="text" class="chat-input" id="chat-input" placeholder="Tell me what you want..." onkeypress="if(event.key==='Enter')sendMessage()">
             <button class="chat-send" id="send-btn" onclick="sendMessage()">Send</button>
           </div>
         </div>
@@ -894,56 +634,43 @@
 
     <footer class="demo-footer">
       <h2 class="demo-footer-title">Ready to mix with AI?</h2>
-      <p class="demo-footer-text">Join the waitlist to get early access to the full NeuralMix plugin for Ableton, Logic, and FL Studio.</p>
-      <a href="index.html#waitlist" class="demo-cta">
-        Get Early Access
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </a>
+      <p class="demo-footer-text">Join the waitlist to get early access to the full NeuralMix plugin.</p>
+      <a href="index.html#waitlist" class="demo-cta">Get Early Access →</a>
     </footer>
   </div>
 
   <script>
     const tracks = [
-      { id: 'vocals', name: 'Lead Vocals', type: 'Audio', color: '#3b82f6', fx: [] },
-      { id: 'drums', name: 'Drum Bus', type: 'Audio', color: '#f97316', fx: [] },
+      { id: 'vocals', name: 'Lead Vocals', type: 'Audio', color: '#e8b923', fx: [] },
+      { id: 'drums', name: 'Drum Bus', type: 'Audio', color: '#d4704a', fx: [] },
       { id: 'bass', name: 'Bass Guitar', type: 'Audio', color: '#8b5cf6', fx: [] },
       { id: 'guitar', name: 'Electric Guitar', type: 'Audio', color: '#22c55e', fx: [] },
       { id: 'synth', name: 'Synth Pad', type: 'MIDI', color: '#06b6d4', fx: [] }
     ];
 
     let isPlaying = false;
-    let animationInterval;
 
     function renderTracks() {
       const container = document.getElementById('tracks-container');
-      container.innerHTML = tracks.map((track, trackIndex) => `
-        <div class="track ${track.processing ? 'processing' : ''}" id="track-${track.id}" style="animation: fadeUp 0.4s ease-out ${trackIndex * 0.1}s backwards;">
+      container.innerHTML = tracks.map((track, i) => `
+        <div class="track ${track.processing ? 'processing' : ''}" id="track-${track.id}" style="animation: fadeUp 0.4s ease-out ${i * 0.1}s backwards;">
           <div class="track-info">
             <div class="track-name">${track.name}</div>
             <div class="track-type">${track.type}</div>
           </div>
           <div class="track-waveform" id="waveform-${track.id}">
             ${Array(40).fill(0).map((_, i) => `
-              <div class="waveform-bar" style="
-                height: ${20 + Math.random() * 60}%;
-                animation-delay: ${i * 0.03}s;
-                background: ${track.color};
-              "></div>
+              <div class="waveform-bar" style="height: ${20 + Math.random() * 60}%; animation-delay: ${i * 0.03}s; background: ${track.color};"></div>
             `).join('')}
           </div>
           <div class="track-fx" id="fx-${track.id}">
-            ${track.fx.length === 0 ? 
-              '<div class="fx-slot"><span class="fx-name">No FX</span></div>' :
+            ${track.fx.length === 0 ? '<div class="fx-slot"><span class="fx-name">No FX</span></div>' :
               track.fx.map(fx => `
                 <div class="fx-slot ${fx.new ? 'newly-added' : ''} ${fx.active ? 'active' : ''}">
                   <span class="fx-name ${fx.active ? 'active' : ''}">${fx.name}</span>
                   <span class="fx-param">${fx.param}</span>
                 </div>
-              `).join('')
-            }
+              `).join('')}
           </div>
         </div>
       `).join('');
@@ -954,26 +681,15 @@
       const btn = document.getElementById('play-btn');
       btn.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
       btn.classList.toggle('active', isPlaying);
-      
-      const bars = document.querySelectorAll('.waveform-bar');
-      bars.forEach(bar => {
+      document.querySelectorAll('.waveform-bar').forEach(bar => {
         bar.style.animationPlayState = isPlaying ? 'running' : 'paused';
       });
     }
 
     function resetDemo() {
-      tracks.forEach(track => {
-        track.fx = [];
-        track.processing = false;
-      });
+      tracks.forEach(track => { track.fx = []; track.processing = false; });
       renderTracks();
-      
-      const chat = document.getElementById('chat-messages');
-      chat.innerHTML = `
-        <div class="message ai">
-          Demo reset! All FX chains cleared. Try another command.
-        </div>
-      `;
+      document.getElementById('chat-messages').innerHTML = '<div class="message ai">Demo reset! All FX chains cleared. Try another command.</div>';
     }
 
     function sendQuickPrompt(text) {
@@ -982,176 +698,111 @@
     }
 
     async function callMiniMax(userMessage) {
-      const apiKey = 'sk-cp-VCDOeZW-OXFxMGlGKTaMoiZNlmpLR61deFEpNMnm_7HoctaMW8NgiBkZ3CPK6QBuPG94wB4jT02FVLtmyi2uv85sZU9NdJRvIyR7eJ0S8tVDlfUzk8vCdyk';
-
-      const systemPrompt = `You are an AI mixing assistant for a DAW plugin called NeuralMix.
-You help users mix their music by analyzing their natural language requests and determining the appropriate audio effects (FX) to apply to each track/stem.
-
-Available tracks:
-- vocals: Lead Vocals (Audio)
-- drums: Drum Bus (Audio)
-- bass: Bass Guitar (Audio)
-- guitar: Electric Guitar (Audio)
-- synth: Synth Pad (MIDI)
-
-Available FX types:
-- EQ (High-pass, Low-pass, Bell, Shelf)
-- Compressor (Threshold, Ratio, Attack, Release)
-- Saturator (Drive, Mix)
-- Reverb (Room, Plate, Size, Decay)
-- Delay (Time, Feedback, Mix)
-- Stereo Widener (Width)
-
-For each user request:
-1. Explain your reasoning about what needs to be changed
-2. Specify which tracks need which FX
-3. Provide specific parameter values
-
-Respond in this format:
-REASONING: <your analysis>
-
-Then for each track that needs changes:
-TRACK: <track_id>
-FX: <fx_name> - <param>: <value>, <param>: <value>`;
-
-      try {
-        const response = await fetch('https://api.minimaxi.com/anthropic/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'MiniMax-M2.7-highspeed',
-            max_tokens: 1024,
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userMessage }
-            ]
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data || !data.content || !Array.isArray(data.content) || data.content.length === 0) {
-          throw new Error('Invalid response format from API');
-        }
-
-        const content = data.content[0];
-        if (!content || !content.text) {
-          throw new Error('Missing content text in API response');
-        }
-
-        return content.text;
-      } catch (error) {
-        console.error('MiniMax API error:', error);
-        return simulateMiniMaxResponse(userMessage);
-      }
+      return simulateMiniMaxResponse(userMessage);
     }
 
     function simulateMiniMaxResponse(message) {
       const lowerMsg = message.toLowerCase();
       
       if (lowerMsg.includes('vocal') && (lowerMsg.includes('punch') || lowerMsg.includes('cut'))) {
-        return `REASONING: To make vocals cut through the mix, I need to enhance presence in the 3-5kHz range where vocal intelligibility lives. I'll add a high-shelf EQ boost and light compression to even out dynamics. A touch of saturation will add harmonics for perceived loudness without harshness.
-
-TRACK: vocals
-FX: EQ High-Shelf - freq: 4000Hz, gain: +3dB, Q: 0.8
-FX: Compressor - threshold: -12dB, ratio: 3:1, attack: 5ms, release: 80ms
-FX: Saturator - drive: 15%, mix: 25%`;
+        return {
+          reasoning: "To make vocals cut through the mix, I need to enhance presence in the 3-5kHz range where vocal intelligibility lives. I'll add a high-shelf EQ boost and light compression to even out dynamics. A touch of saturation will add harmonics for perceived loudness without harshness.",
+          trackUpdates: {
+            vocals: [
+              { name: 'EQ High-Shelf', params: { freq: '4000Hz', gain: '+3dB', Q: '0.8' } },
+              { name: 'Compressor', params: { threshold: '-12dB', ratio: '3:1', attack: '5ms', release: '80ms' } },
+              { name: 'Saturator', params: { drive: '15%', mix: '25%' } }
+            ]
+          }
+        };
       }
       
       if (lowerMsg.includes('warm') || lowerMsg.includes('analog')) {
-        return `REASONING: Adding warmth requires enhancing low-mids (200-400Hz) and rolling off some high-end harshness. I'll apply tape-style saturation to the guitar and bass for that analog harmonic richness. Light compression will glue things together.
-
-TRACK: guitar
-FX: EQ Low-Shelf - freq: 250Hz, gain: +2dB
-FX: Saturator - drive: 20%, mix: 30%, type: tape
-FX: Compressor - threshold: -18dB, ratio: 2:1
-
-TRACK: bass
-FX: Saturator - drive: 12%, mix: 20%, type: tube
-FX: EQ Bell - freq: 120Hz, gain: +2.5dB, Q: 1.2`;
+        return {
+          reasoning: "Adding warmth requires enhancing low-mids (200-400Hz) and rolling off some high-end harshness. I'll apply tape-style saturation to the guitar and bass for that analog harmonic richness. Light compression will glue things together.",
+          trackUpdates: {
+            guitar: [
+              { name: 'EQ Low-Shelf', params: { freq: '250Hz', gain: '+2dB' } },
+              { name: 'Saturator', params: { drive: '20%', mix: '30%', type: 'tape' } },
+              { name: 'Compressor', params: { threshold: '-18dB', ratio: '2:1' } }
+            ],
+            bass: [
+              { name: 'Saturator', params: { drive: '12%', mix: '20%', type: 'tube' } },
+              { name: 'EQ Bell', params: { freq: '120Hz', gain: '+2.5dB', Q: '1.2' } }
+            ]
+          }
+        };
       }
       
       if (lowerMsg.includes('drum') && (lowerMsg.includes('tight') || lowerMsg.includes('punch'))) {
-        return `REASONING: To tighten drums, I need to enhance transients and control the low-end. Parallel compression will keep the punch while controlling dynamics. A high-pass filter removes unnecessary sub-bass mud.
-
-TRACK: drums
-FX: Transient Shaper - attack: +6dB, sustain: -3dB
-FX: Compressor - threshold: -8dB, ratio: 4:1, attack: 2ms, release: 40ms
-FX: EQ High-Pass - freq: 60Hz, slope: 12dB/oct`;
+        return {
+          reasoning: "To tighten drums, I need to enhance transients and control the low-end. Parallel compression will keep the punch while controlling dynamics. A high-pass filter removes unnecessary sub-bass mud.",
+          trackUpdates: {
+            drums: [
+              { name: 'Transient Shaper', params: { attack: '+6dB', sustain: '-3dB' } },
+              { name: 'Compressor', params: { threshold: '-8dB', ratio: '4:1', attack: '2ms', release: '40ms' } },
+              { name: 'EQ High-Pass', params: { freq: '60Hz', slope: '12dB/oct' } }
+            ]
+          }
+        };
       }
       
       if (lowerMsg.includes('wide') || lowerMsg.includes('stereo')) {
-        return `REASONING: Widening the stereo field works best on mid-range elements. I'll use a stereo widener on the synth pad and add subtle Haas effect to guitars. Keeping bass and kick mono for solid low-end.
-
-TRACK: synth
-FX: Stereo Widener - width: 140%, freq: 400Hz-12kHz
-FX: Reverb Plate - size: 75%, decay: 1.2s, mix: 20%
-
-TRACK: guitar
-FX: Stereo Delay - left: 15ms, right: 25ms, mix: 15%
-FX: Chorus - rate: 0.8Hz, depth: 25%`;
+        return {
+          reasoning: "Widening the stereo field works best on mid-range elements. I'll use a stereo widener on the synth pad and add subtle Haas effect to guitars. Keeping bass and kick mono for solid low-end.",
+          trackUpdates: {
+            synth: [
+              { name: 'Stereo Widener', params: { width: '140%', freq: '400Hz-12kHz' } },
+              { name: 'Reverb Plate', params: { size: '75%', decay: '1.2s', mix: '20%' } }
+            ],
+            guitar: [
+              { name: 'Stereo Delay', params: { left: '15ms', right: '25ms', mix: '15%' } },
+              { name: 'Chorus', params: { rate: '0.8Hz', depth: '25%' } }
+            ]
+          }
+        };
       }
       
-      return `REASONING: Based on your request, I'll apply subtle enhancements across the mix to improve clarity and cohesion. Light EQ adjustments will balance frequencies, while gentle compression controls dynamics without squashing the life out of the performance.
-
-TRACK: vocals
-FX: EQ Bell - freq: 3000Hz, gain: +1.5dB, Q: 1.0
-FX: Compressor - threshold: -15dB, ratio: 2.5:1
-
-TRACK: drums
-FX: EQ High-Pass - freq: 50Hz
-FX: Transient Shaper - attack: +3dB
-
-TRACK: guitar
-FX: EQ Low-Shelf - freq: 200Hz, gain: +1dB
-FX: Light Reverb - mix: 12%, decay: 0.8s`;
+      return {
+        reasoning: "Based on your request, I'll apply subtle enhancements across the mix to improve clarity and cohesion. Light EQ adjustments will balance frequencies, while gentle compression controls dynamics without squashing the life out of the performance.",
+        trackUpdates: {
+          vocals: [
+            { name: 'EQ Bell', params: { freq: '3000Hz', gain: '+1.5dB', Q: '1.0' } },
+            { name: 'Compressor', params: { threshold: '-15dB', ratio: '2.5:1' } }
+          ],
+          drums: [
+            { name: 'EQ High-Pass', params: { freq: '50Hz' } },
+            { name: 'Transient Shaper', params: { attack: '+3dB' } }
+          ],
+          guitar: [
+            { name: 'EQ Low-Shelf', params: { freq: '200Hz', gain: '+1dB' } },
+            { name: 'Light Reverb', params: { mix: '12%', decay: '0.8s' } }
+          ]
+        }
+      };
     }
 
-    function parseAndApplyFX(responseText) {
-      const lines = responseText.split('\n');
-      let currentTrack = null;
-      let reasoning = '';
-      const trackUpdates = {};
-      
-      let inReasoning = false;
-      
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) continue;
-        
-        if (trimmed.startsWith('REASONING:')) {
-          inReasoning = true;
-          reasoning = trimmed.replace('REASONING:', '').trim();
-        } else if (trimmed.startsWith('TRACK:')) {
-          inReasoning = false;
-          currentTrack = trimmed.replace('TRACK:', '').trim();
-          if (!trackUpdates[currentTrack]) {
-            trackUpdates[currentTrack] = [];
-          }
-        } else if (trimmed.startsWith('FX:') && currentTrack) {
-          const fxText = trimmed.replace('FX:', '').trim();
-          const [name, ...paramParts] = fxText.split(' - ');
-          const params = paramParts.join(' - ');
-          
-          trackUpdates[currentTrack].push({
-            name: name.trim(),
-            param: params.trim() || 'Active',
-            active: true,
-            new: true
-          });
-        } else if (inReasoning) {
-          reasoning += ' ' + trimmed;
-        }
+    function createParamChip(paramName, paramValue, trackId, fxIndex, paramKey) {
+      return `
+        <span class="param-chip">
+          <span class="param-label">${paramName}:</span>
+          <span class="param-value" 
+                contenteditable="true" 
+                onblur="updateParam('${trackId}', ${fxIndex}, '${paramKey}', this.innerText)"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+          >${paramValue}</span>
+        </span>
+      `;
+    }
+
+    function updateParam(trackId, fxIndex, paramKey, newValue) {
+      const track = tracks.find(t => t.id === trackId);
+      if (track && track.fx[fxIndex]) {
+        track.fx[fxIndex].params[paramKey] = newValue;
+        track.fx[fxIndex].param = Object.entries(track.fx[fxIndex].params)
+          .map(([k, v]) => `${k}: ${v}`).join(', ');
+        renderTracks();
       }
-      
-      return { reasoning, trackUpdates };
     }
 
     async function sendMessage() {
@@ -1170,36 +821,27 @@ FX: Light Reverb - mix: 12%, decay: 0.8s`;
       const typingId = 'typing-' + Date.now();
       chat.innerHTML += `
         <div class="message ai" id="${typingId}">
-          <div class="typing-indicator">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
+          <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
         </div>
       `;
       chat.scrollTop = chat.scrollHeight;
       
       try {
         const response = await callMiniMax(message);
+        document.getElementById(typingId)?.remove();
         
-        const typingEl = document.getElementById(typingId);
-        if (typingEl) typingEl.remove();
+        let aiResponseHTML = `<div class="message ai"><div>I'll apply those changes to your mix.</div>`;
         
-        const { reasoning, trackUpdates } = parseAndApplyFX(response);
-        
-        let aiResponseHTML = `<div class="message ai">`;
-        aiResponseHTML += `<div>I'll apply those changes to your mix.</div>`;
-        
-        if (reasoning) {
+        if (response.reasoning) {
           aiResponseHTML += `
             <div class="reasoning-block">
-              <div class="reasoning-title">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <div class="reasoning-header">
+                <svg class="reasoning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
-                Reasoning Process
+                <span class="reasoning-title">AI Reasoning</span>
               </div>
-              <div class="reasoning-text">${escapeHtml(reasoning)}</div>
+              <div class="reasoning-text">${escapeHtml(response.reasoning)}</div>
             </div>
           `;
         }
@@ -1207,50 +849,57 @@ FX: Light Reverb - mix: 12%, decay: 0.8s`;
         aiResponseHTML += `
           <div class="tool-call">
             <div class="tool-call-header">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg class="tool-call-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Tool Call: apply_fx_chain
+              Applied FX Chains — Click values to edit
             </div>
-            <div class="tool-call-content">
-${escapeHtml(JSON.stringify(trackUpdates, null, 2))}
-            </div>
-          </div>
+            <div class="fx-list">
         `;
         
-        aiResponseHTML += `</div>`;
+        Object.entries(response.trackUpdates).forEach(([trackId, fxList]) => {
+          fxList.forEach((fx, index) => {
+            const paramChips = Object.entries(fx.params)
+              .map(([k, v]) => createParamChip(k, v, trackId, index, k))
+              .join('');
+            
+            aiResponseHTML += `
+              <div class="fx-item">
+                <span class="fx-track-name">${trackId}</span>
+                <span class="fx-effect-name">${fx.name}</span>
+                <div class="fx-params">${paramChips}</div>
+              </div>
+            `;
+          });
+        });
         
+        aiResponseHTML += `</div></div></div>`;
         chat.innerHTML += aiResponseHTML;
         chat.scrollTop = chat.scrollHeight;
         
-        Object.entries(trackUpdates).forEach(([trackId, fxList], index) => {
+        Object.entries(response.trackUpdates).forEach(([trackId, fxList], index) => {
           const track = tracks.find(t => t.id === trackId);
           if (track) {
             track.processing = true;
             renderTracks();
             
             setTimeout(() => {
-              track.fx = fxList;
+              track.fx = fxList.map(fx => ({
+                name: fx.name,
+                param: Object.entries(fx.params).map(([k, v]) => `${k}: ${v}`).join(', '),
+                params: fx.params,
+                active: true,
+                new: true
+              }));
               track.processing = false;
               renderTracks();
-              
-              const trackEl = document.getElementById(`track-${trackId}`);
-              if (trackEl) {
-                trackEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
+              document.getElementById(`track-${trackId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 800 + (index * 200));
           }
         });
-        
       } catch (error) {
-        const typingEl = document.getElementById(typingId);
-        if (typingEl) typingEl.remove();
-        
-        chat.innerHTML += `
-          <div class="message ai">
-            Sorry, I encountered an error processing your request. Please try again.
-          </div>
-        `;
+        document.getElementById(typingId)?.remove();
+        chat.innerHTML += `<div class="message ai">Sorry, I encountered an error. Please try again.</div>`;
         chat.scrollTop = chat.scrollHeight;
       }
       
@@ -1268,6 +917,5 @@ ${escapeHtml(JSON.stringify(trackUpdates, null, 2))}
 
     renderTracks();
   </script>
-
 </body>
 </html>
