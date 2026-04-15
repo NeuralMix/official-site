@@ -468,7 +468,8 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 0;
+      padding: 8px 0;
+      min-height: 40px;
       border-bottom: 1px solid var(--glass-border);
     }
 
@@ -501,40 +502,79 @@
     .param-chip {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
+      gap: 6px;
+      padding: 6px 12px;
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--glass-border);
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
+      position: relative;
     }
 
     .param-label {
       color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .param-slider-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: ew-resize;
+      user-select: none;
     }
 
     .param-value {
       color: var(--text-primary);
       font-weight: 600;
-      cursor: pointer;
-      padding: 2px 6px;
+      padding: 2px 8px;
       border-radius: 4px;
       transition: all 0.2s;
       border: 1px solid transparent;
+      white-space: nowrap;
+      min-width: 50px;
+      text-align: center;
     }
 
-    .param-value:hover {
-      background: rgba(34, 211, 238, 0.2);
-      border-color: rgba(34, 211, 238, 0.3);
+    .param-slider-track {
+      position: absolute;
+      bottom: -2px;
+      left: 8px;
+      right: 8px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
-    .param-value.editing {
+    .param-slider-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--aurora-teal), var(--aurora-green));
+      border-radius: 2px;
+      width: 50%;
+      transition: width 0.1s;
+    }
+
+    .param-slider-container:hover .param-slider-track {
+      opacity: 1;
+    }
+
+    .param-slider-container:hover .param-value {
+      background: rgba(34, 211, 238, 0.15);
+      border-color: rgba(34, 211, 238, 0.4);
+    }
+
+    .param-slider-container.dragging .param-value {
       background: rgba(34, 211, 238, 0.3);
       border-color: var(--aurora-teal);
-      outline: none;
-      min-width: 40px;
-      text-align: center;
+      transform: scale(1.05);
+    }
+
+    .param-slider-container.dragging .param-slider-track {
+      opacity: 1;
+      height: 4px;
     }
 
     .chat-input-container {
@@ -883,14 +923,30 @@
     }
 
     function createParamChip(paramName, paramValue, trackId, fxIndex, paramKey) {
+      const numericMatch = paramValue.match(/([+-]?\d+\.?\d*)/);
+      const numericValue = numericMatch ? parseFloat(numericMatch[1]) : 0;
+      const unit = paramValue.replace(/[+-]?\d+\.?\d*/, '');
+      const min = unit.includes('Hz') ? 20 : unit.includes('dB') ? -24 : unit.includes('ms') ? 1 : 0;
+      const max = unit.includes('Hz') ? 20000 : unit.includes('dB') ? 24 : unit.includes('ms') ? 500 : unit.includes('%') ? 100 : 10;
+      const percent = ((numericValue - min) / (max - min)) * 100;
+      
       return `
         <span class="param-chip">
           <span class="param-label">${paramName}:</span>
-          <span class="param-value" 
-                contenteditable="true" 
-                onblur="updateParam('${trackId}', ${fxIndex}, '${paramKey}', this.innerText)"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
-          >${paramValue}</span>
+          <span class="param-slider-container" 
+                data-track="${trackId}" 
+                data-fx="${fxIndex}" 
+                data-param="${paramKey}"
+                data-value="${numericValue}"
+                data-unit="${unit}"
+                data-min="${min}"
+                data-max="${max}"
+                onmousedown="startDrag(this, event)">
+            <span class="param-value">${paramValue}</span>
+            <span class="param-slider-track">
+              <span class="param-slider-fill" style="width: ${Math.max(0, Math.min(100, percent))}%"></span>
+            </span>
+          </span>
         </span>
       `;
     }
@@ -903,6 +959,76 @@
           .map(([k, v]) => `${k}: ${v}`).join(', ');
         renderTracks();
       }
+    }
+
+    let dragState = null;
+
+    function startDrag(element, event) {
+      event.preventDefault();
+      const rect = element.getBoundingClientRect();
+      const min = parseFloat(element.dataset.min);
+      const max = parseFloat(element.dataset.max);
+      const startX = event.clientX;
+      const startValue = parseFloat(element.dataset.value);
+      const step = (max - min) / 100;
+      
+      dragState = {
+        element: element,
+        startX: startX,
+        startValue: startValue,
+        min: min,
+        max: max,
+        step: step,
+        unit: element.dataset.unit,
+        trackId: element.dataset.track,
+        fxIndex: parseInt(element.dataset.fx),
+        paramKey: element.dataset.param
+      };
+      
+      element.classList.add('dragging');
+      document.body.style.cursor = 'ew-resize';
+      
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', stopDrag);
+    }
+
+    function onDrag(event) {
+      if (!dragState) return;
+      
+      const deltaX = event.clientX - dragState.startX;
+      const sensitivity = 2;
+      const newValue = dragState.startValue + (deltaX * dragState.step * sensitivity);
+      const clampedValue = Math.max(dragState.min, Math.min(dragState.max, newValue));
+      
+      const decimals = dragState.unit.includes('Hz') || dragState.unit.includes('ms') ? 0 : 1;
+      const formattedValue = clampedValue.toFixed(decimals);
+      const displayValue = (clampedValue >= 0 && dragState.unit.includes('dB')) ? `+${formattedValue}` : formattedValue;
+      
+      const valueEl = dragState.element.querySelector('.param-value');
+      const fillEl = dragState.element.querySelector('.param-slider-fill');
+      
+      valueEl.textContent = displayValue + dragState.unit;
+      
+      const percent = ((clampedValue - dragState.min) / (dragState.max - dragState.min)) * 100;
+      fillEl.style.width = Math.max(0, Math.min(100, percent)) + '%';
+      
+      dragState.currentValue = displayValue + dragState.unit;
+    }
+
+    function stopDrag() {
+      if (!dragState) return;
+      
+      if (dragState.currentValue) {
+        updateParam(dragState.trackId, dragState.fxIndex, dragState.paramKey, dragState.currentValue);
+      }
+      
+      dragState.element.classList.remove('dragging');
+      document.body.style.cursor = '';
+      
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      
+      dragState = null;
     }
 
     function sleep(ms) {
