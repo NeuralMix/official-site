@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuralMix — AI Virtual Audio Engineer</title>
+<meta name="description" content="NeuralMix is an AI-powered DAW plugin that mixes your tracks with stem-level precision using natural language. No engineering degree required.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,300;1,14..32,400&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────
+   RESET & TOKENS
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --c-bg:       #070b14;
+  --c-bg2:      #090e1a;
+  --c-surface:  rgba(255,255,255,.035);
+  --c-border:   rgba(255,255,255,.07);
+  --c-border2:  rgba(99,155,255,.14);
+  --c-text:     #e8edf5;
+  --c-muted:    rgba(232,237,245,.38);
+  --c-faint:    rgba(232,237,245,.16);
+  --c-blue:     #1d4ed8;
+  --c-blue2:    #3b82f6;
+  --c-blue3:    #60a5fa;
+  --c-blue4:    #93c5fd;
+  --c-accent:   #6ee7ff;
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-pill: 999px;
+  --shadow-glow: 0 0 80px rgba(59,130,246,.18);
+  --shadow-card: 0 1px 3px rgba(0,0,0,.5), 0 8px 32px rgba(0,0,0,.3);
+}
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  overflow-x: hidden;
+  line-height: 1;
+}
+
+/* ─────────────────────────────────────────────
+   LAYOUT
+───────────────────────────────────────────── */
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ─────────────────────────────────────────────
+   NAVBAR
+───────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  inset: 16px 16px auto;
+  z-index: 200;
+  border-radius: var(--r-xl);
+  background: rgba(7,11,20,.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--c-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  transition: background .3s;
+  box-shadow: 0 4px 32px rgba(0,0,0,.4);
+}
+
+.nav-logo {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.4px;
+  color: var(--c-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo-icon {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--c-blue), var(--c-blue3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-logo-icon svg {
+  width: 13px; height: 13px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-muted);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  transition: color .15s, background .15s;
+}
+
+.nav-link:hover {
+  color: var(--c-text);
+  background: rgba(255,255,255,.05);
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--c-blue);
+  padding: 8px 18px;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  letter-spacing: -.1px;
+}
+
+.nav-cta:hover { background: #2563eb; }
+.nav-cta:active { transform: scale(.97); }
+
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 140px 28px 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background noise texture */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: .5;
+}
+
+.hero-glow-1 {
+  position: absolute;
+  width: 900px; height: 900px;
+  top: -300px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(29,78,216,.2) 0%, rgba(59,130,246,.06) 40%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-glow-2 {
+  position: absolute;
+  width: 600px; height: 400px;
+  bottom: -100px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(6,182,212,.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Fine grid */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,155,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,155,255,.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 70%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  max-width: 800px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--c-blue3);
+  background: rgba(59,130,246,.08);
+  border: 1px solid rgba(59,130,246,.2);
+  border-radius: var(--r-pill);
+  padding: 5px 14px 5px 10px;
+}
+
+.eyebrow-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c-blue3);
+  box-shadow: 0 0 0 3px rgba(96,165,250,.25);
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 3px rgba(96,165,250,.25); }
+  50%      { opacity: .5; box-shadow: 0 0 0 5px rgba(96,165,250,.1); }
+}
+
+.hero-h1 {
+  font-size: clamp(56px, 9vw, 104px);
+  font-weight: 900;
+  line-height: .9;
+  letter-spacing: -4px;
+  color: var(--c-text);
+  font-optical-sizing: auto;
+}
+
+.hero-h1 .grad {
+  background: linear-gradient(120deg, #60a5fa 20%, #a5f3fc 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--c-muted);
+  line-height: 1.7;
+  max-width: 520px;
+  font-weight: 400;
+}
+
+.hero-sub strong { color: rgba(232,237,245,.72); font-weight: 500; }
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.btn-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--c-blue);
+  padding: 13px 26px;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  box-shadow: 0 0 0 1px rgba(59,130,246,.5), 0 8px 40px rgba(29,78,216,.5), inset 0 1px 0 rgba(255,255,255,.12);
+  letter-spacing: -.1px;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-hero:hover {
+  background: #2563eb;
+  box-shadow: 0 0 0 1px rgba(59,130,246,.6), 0 12px 48px rgba(29,78,216,.6), inset 0 1px 0 rgba(255,255,255,.15);
+  transform: translateY(-1px);
+}
+
+.btn-hero:active { transform: scale(.98); }
+
+.btn-hero svg {
+  width: 16px; height: 16px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-muted);
+  padding: 12px 20px;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  transition: color .15s, border-color .15s;
+  cursor: pointer;
+}
+
+.btn-secondary:hover { color: var(--c-text); border-color: rgba(255,255,255,.15); }
+
+.btn-secondary svg {
+  width: 14px; height: 14px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.hero-daws {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-daws-label {
+  font-size: 10.5px;
+  color: var(--c-faint);
+  font-weight: 500;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+.daw-pill {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-faint);
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+  letter-spacing: .1px;
+}
+
+/* Mock waveform bar chart */
+.hero-visual {
+  position: relative;
+  z-index: 2;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 700px;
+}
+
+.waveform-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: 24px 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.waveform-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(96,165,250,.35), transparent);
+}
+
+.wf-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.wf-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--c-muted);
+  letter-spacing: .1px;
+}
+
+.wf-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(74,222,128,.08);
+  border: 1px solid rgba(74,222,128,.18);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+}
+
+.wf-status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+.stems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stem-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 48px;
+  align-items: center;
+  gap: 12px;
+}
+
+.stem-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-muted);
+  letter-spacing: .2px;
+  text-align: right;
+}
+
+.stem-track {
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255,255,255,.04);
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.stem-bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+}
+
+.stem-bar {
+  flex: 1;
+  border-radius: 2px;
+  opacity: .7;
+  animation: barPulse var(--dur, 1s) ease-in-out infinite alternate var(--del, 0s);
+}
+
+@keyframes barPulse {
+  from { transform: scaleY(.3); opacity: .4; }
+  to   { transform: scaleY(1); opacity: .85; }
+}
+
+.stem-db {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-faint);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ─────────────────────────────────────────────
+   SECTION SKELETON
+───────────────────────────────────────────── */
+.section { padding: 120px 0; }
+
+.section-eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .9px;
+  color: var(--c-blue3);
+  margin-bottom: 16px;
+}
+
+.section-h {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+  color: var(--c-text);
+  margin-bottom: 14px;
+}
+
+.section-h .grad {
+  background: linear-gradient(120deg, var(--c-blue2), var(--c-blue4));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section-p {
+  font-size: 15px;
+  color: var(--c-muted);
+  line-height: 1.75;
+  font-weight: 400;
+  max-width: 520px;
+}
+
+/* ─────────────────────────────────────────────
+   DIVIDER SECTION
+───────────────────────────────────────────── */
+.divider-section {
+  padding: 0;
+  border-top: 1px solid var(--c-border);
+}
+
+/* ─────────────────────────────────────────────
+   PROBLEM SECTION
+───────────────────────────────────────────── */
+#problem {
+  background: var(--c-bg2);
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.problem-header {
+  text-align: center;
+  max-width: 580px;
+  margin: 0 auto 72px;
+}
+
+.problem-header .section-p { margin: 0 auto; }
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--c-border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+
+.pillar {
+  background: var(--c-bg2);
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  transition: background .2s;
+}
+
+.pillar:hover { background: rgba(9,14,26,.6); }
+
+.pillar-num {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--c-faint);
+}
+
+.pillar-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--c-border2);
+  background: rgba(29,78,216,.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pillar-icon svg {
+  width: 20px; height: 20px;
+  stroke: var(--c-blue3);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pillar-h {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -.3px;
+  line-height: 1.2;
+}
+
+.pillar-p {
+  font-size: 13.5px;
+  color: var(--c-muted);
+  line-height: 1.7;
+}
+
+.pillar-p strong {
+  color: rgba(232,237,245,.6);
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────
+   SOLUTION SECTION
+───────────────────────────────────────────── */
+#solution { background: var(--c-bg); }
+
+.solution-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.solution-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feat-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px;
+  border-radius: var(--r-lg);
+  border: 1px solid transparent;
+  cursor: default;
+  transition: background .15s, border-color .15s;
+}
+
+.feat-item:hover {
+  background: var(--c-surface);
+  border-color: var(--c-border);
+}
+
+.feat-icon {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: rgba(29,78,216,.12);
+  border: 1px solid rgba(59,130,246,.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.feat-icon svg {
+  width: 16px; height: 16px;
+  stroke: var(--c-blue3);
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feat-h { font-size: 14px; font-weight: 700; color: var(--c-text); margin-bottom: 5px; letter-spacing: -.1px; }
+.feat-p { font-size: 13px; color: var(--c-muted); line-height: 1.65; }
+
+.solution-demo {
+  position: relative;
+}
+
+.demo-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.demo-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 10%, rgba(96,165,250,.4) 50%, transparent 90%);
+}
+
+.demo-titlebar {
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid var(--c-border);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.demo-dots { display: flex; gap: 5px; }
+
+.demo-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+.demo-dot:nth-child(1) { background: rgba(255,95,87,.7); }
+.demo-dot:nth-child(2) { background: rgba(255,189,46,.7); }
+.demo-dot:nth-child(3) { background: rgba(40,200,64,.7); }
+
+.demo-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-faint);
+  margin: 0 auto;
+  letter-spacing: .2px;
+}
+
+.demo-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.demo-chat-user {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.chat-bubble.user {
+  background: var(--c-blue);
+  color: #fff;
+  border-radius: 16px 16px 4px 16px;
+  box-shadow: 0 2px 12px rgba(29,78,216,.35);
+}
+
+.chat-bubble.ai {
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  border-radius: 16px 16px 16px 4px;
+}
+
+.chat-bubble.ai .ai-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--c-blue3);
+  margin-bottom: 5px;
+}
+
+.demo-applying {
+  background: rgba(29,78,216,.06);
+  border: 1px solid rgba(59,130,246,.12);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.applying-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--c-blue3);
+}
+
+.applying-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.at-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-muted);
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.at-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.06);
+  overflow: hidden;
+}
+
+.at-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--c-blue), var(--c-blue3));
+}
+
+.at-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--c-blue3);
+  background: rgba(59,130,246,.12);
+  border-radius: var(--r-pill);
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────
+   STATS STRIP
+───────────────────────────────────────────── */
+#market {
+  background: var(--c-bg2);
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  padding: 80px 0;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--c-border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.stat-cell {
+  background: var(--c-bg2);
+  padding: 48px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-num {
+  font-size: clamp(40px, 5vw, 60px);
+  font-weight: 900;
+  letter-spacing: -2.5px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--c-text) 40%, rgba(232,237,245,.4));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat-unit {
+  font-size: 60%;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--c-blue2), var(--c-blue4));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat-label {
+  font-size: 12.5px;
+  color: var(--c-faint);
+  font-weight: 500;
+  letter-spacing: .2px;
+  line-height: 1.4;
+}
+
+.market-note {
+  text-align: center;
+  font-size: 15px;
+  color: var(--c-muted);
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.market-note strong { color: rgba(232,237,245,.65); font-weight: 600; }
+
+/* ─────────────────────────────────────────────
+   PRICING — LOCKED
+───────────────────────────────────────────── */
+#pricing {
+  background: var(--c-bg);
+  padding: 120px 0;
+}
+
+.pricing-header { text-align: center; margin-bottom: 64px; }
+.pricing-header .section-p { margin: 0 auto; }
+
+.pricing-stage {
+  position: relative;
+}
+
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+  opacity: .55;
+}
+
+.pc {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: 28px 24px;
+}
+
+.pc.featured {
+  border-color: rgba(59,130,246,.35);
+  background: rgba(29,78,216,.06);
+}
+
+.pc-tier {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--c-faint);
+  margin-bottom: 12px;
+}
+
+.pc.featured .pc-tier { color: var(--c-blue3); }
+
+.pc-price {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -2.5px;
+  color: var(--c-text);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.pc-price sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--c-muted);
+  letter-spacing: 0;
+}
+
+.pc-desc {
+  font-size: 12.5px;
+  color: var(--c-muted);
+  line-height: 1.65;
+}
+
+.pc-badge {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--c-blue3);
+  background: rgba(59,130,246,.1);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+}
+
+/* Lock overlay */
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(7,11,20,.5) 25%,
+    rgba(7,11,20,.92) 60%,
+    var(--c-bg) 100%
+  );
+  border-radius: var(--r-xl);
+  z-index: 10;
+}
+
+.lock-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(29,78,216,.15);
+  border: 1px solid rgba(59,130,246,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 40px rgba(29,78,216,.2);
+}
+
+.lock-icon svg {
+  width: 22px; height: 22px;
+  stroke: var(--c-blue3);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lock-h { font-size: 17px; font-weight: 800; color: var(--c-text); letter-spacing: -.3px; }
+.lock-p { font-size: 13px; color: var(--c-muted); margin-bottom: 4px; }
+
+/* ─────────────────────────────────────────────
+   WAITLIST
+───────────────────────────────────────────── */
+#waitlist {
+  background: var(--c-bg2);
+  border-top: 1px solid var(--c-border);
+  padding: 140px 0;
+}
+
+.waitlist-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.waitlist-left { padding-top: 8px; }
+
+.waitlist-left .section-p { margin-bottom: 32px; }
+
+.benefit-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.benefit-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--c-muted);
+  line-height: 1.5;
+}
+
+.benefit-check {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(29,78,216,.12);
+  border: 1px solid rgba(59,130,246,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.benefit-check svg {
+  width: 10px; height: 10px;
+  stroke: var(--c-blue3);
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.form-card {
+  background: rgba(255,255,255,.025);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: 32px;
+  position: relative;
+  box-shadow: var(--shadow-card);
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(96,165,250,.3), transparent);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.field label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--c-faint);
+}
+
+.field input,
+.field select {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-family: 'Inter', sans-serif;
+  color: var(--c-text);
+  outline: none;
+  transition: border-color .15s, background .15s;
+  -webkit-appearance: none;
+}
+
+.field input::placeholder { color: rgba(232,237,245,.2); }
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--c-blue2);
+  background: rgba(59,130,246,.05);
+}
+
+.field.full { grid-column: 1 / -1; }
+
+.field select option { background: #0d1526; color: var(--c-text); }
+
+.btn-submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--c-blue);
+  padding: 14px 20px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  margin-top: 8px;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  box-shadow: 0 4px 24px rgba(29,78,216,.45), inset 0 1px 0 rgba(255,255,255,.1);
+  letter-spacing: -.1px;
+}
+
+.btn-submit:hover { background: #2563eb; box-shadow: 0 6px 32px rgba(29,78,216,.55), inset 0 1px 0 rgba(255,255,255,.12); }
+.btn-submit:active { transform: scale(.99); }
+
+.btn-submit svg {
+  width: 15px; height: 15px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.form-note {
+  text-align: center;
+  font-size: 11px;
+  color: var(--c-faint);
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+/* Success */
+.form-success {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.success-mark {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(29,78,216,.15);
+  border: 1px solid rgba(59,130,246,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 32px rgba(29,78,216,.2);
+}
+
+.success-mark svg {
+  width: 24px; height: 24px;
+  stroke: var(--c-blue3); fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.success-h { font-size: 20px; font-weight: 800; color: var(--c-text); letter-spacing: -.3px; }
+.success-p { font-size: 13.5px; color: var(--c-muted); line-height: 1.65; max-width: 300px; }
+
+/* ─────────────────────────────────────────────
+   TEAM
+───────────────────────────────────────────── */
+#team {
+  background: var(--c-bg);
+  padding: 120px 0;
+}
+
+.team-header { text-align: center; margin-bottom: 64px; }
+.team-header .section-p { margin: 0 auto; }
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.team-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: border-color .2s, transform .2s;
+}
+
+.team-card:hover {
+  border-color: var(--c-border2);
+  transform: translateY(-2px);
+}
+
+.team-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.team-av {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--c-border2);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--c-blue), var(--c-blue3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.team-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+.team-name { font-size: 15px; font-weight: 700; color: var(--c-text); letter-spacing: -.2px; }
+
+.team-role {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--c-blue3);
+  margin-top: 2px;
+}
+
+.team-bio {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.team-bio li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12.5px;
+  color: var(--c-muted);
+  line-height: 1.55;
+}
+
+.team-bio li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 7px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(59,130,246,.5);
+}
+
+.team-bio li strong { color: rgba(232,237,245,.6); font-weight: 600; }
+
+.team-banner {
+  background: rgba(29,78,216,.06);
+  border: 1px solid rgba(59,130,246,.12);
+  border-radius: var(--r-lg);
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.banner-sym {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--c-blue2);
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: .7;
+}
+
+.banner-text {
+  font-size: 13.5px;
+  color: var(--c-muted);
+  line-height: 1.7;
+}
+
+.banner-text strong { color: rgba(232,237,245,.65); font-weight: 600; }
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+footer {
+  background: var(--c-bg2);
+  border-top: 1px solid var(--c-border);
+  padding: 40px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--c-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: -.2px;
+}
+
+.footer-logo-mark {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--c-blue), var(--c-blue3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-logo-mark svg {
+  width: 11px; height: 11px;
+  stroke: #fff; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.footer-copy { font-size: 11.5px; color: var(--c-faint); }
+
+.footer-links {
+  display: flex;
+  gap: 18px;
+}
+
+.footer-links a {
+  font-size: 11.5px;
+  color: var(--c-faint);
+  text-decoration: none;
+  transition: color .15s;
+}
+
+.footer-links a:hover { color: var(--c-muted); }
+
+/* ─────────────────────────────────────────────
+   SCROLL ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal { opacity: 0; }
+.reveal.shown { animation: fadeUp .6s cubic-bezier(.16,1,.3,1) both; }
+.reveal.d1 { animation-delay: .06s; }
+.reveal.d2 { animation-delay: .12s; }
+.reveal.d3 { animation-delay: .18s; }
+.reveal.d4 { animation-delay: .24s; }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .pillars, .solution-layout, .waitlist-layout, .team-grid, .pricing-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .solution-layout { gap: 48px; }
+  .waitlist-layout { gap: 56px; }
+
+  .stats-row { grid-template-columns: 1fr 1fr; }
+
+  .hero-h1 { letter-spacing: -2.5px; }
+
+  .nav-links { display: none; }
+}
+
+@media (max-width: 560px) {
+  .stats-row  { grid-template-columns: 1fr; }
+  .form-grid  { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .btn-hero, .btn-secondary { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     NAVBAR
+════════════════════════════════════ -->
+<nav class="nav" id="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    NeuralMix
+  </a>
+
+  <div class="nav-links">
+    <a href="#problem"  class="nav-link">Problem</a>
+    <a href="#solution" class="nav-link">Solution</a>
+    <a href="#team"     class="nav-link">Team</a>
+  </div>
+
+  <a href="#waitlist" class="nav-cta">
+    Join Waitlist
+  </a>
+</nav>
+
+<!-- ═══════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      Now accepting early access
+    </div>
+
+    <h1 class="hero-h1">
+      Your AI<br>
+      <span class="grad">audio engineer.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Upload your stems. Say what you want.
+      NeuralMix applies <strong>professional-grade FX chains</strong> per-track
+      — directly inside your DAW.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#waitlist" class="btn-hero">
+        <svg viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/><rect x="2" y="6" width="20" height="14" rx="2"/></svg>
+        Reserve early access
+      </a>
+      <a href="#solution" class="btn-secondary">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="10 8 14 12 10 16"/></svg>
+        See how it works
+      </a>
+    </div>
+
+    <div class="hero-daws">
+      <span class="hero-daws-label">Works inside</span>
+      <span class="daw-pill">Ableton Live</span>
+      <span class="daw-pill">Logic Pro</span>
+      <span class="daw-pill">FL Studio</span>
+    </div>
+
+  </div>
+
+  <!-- Waveform UI mockup -->
+  <div class="hero-visual">
+    <div class="waveform-card">
+      <div class="wf-top">
+        <span class="wf-title">NeuralMix · Session #047</span>
+        <span class="wf-status"><span class="wf-status-dot"></span>Mixing live</span>
+      </div>
+      <div class="stems">
+
+        <!-- Vocals -->
+        <div class="stem-row">
+          <span class="stem-name">Vocals</span>
+          <div class="stem-track">
+            <div class="stem-bars" id="stems-vocal"></div>
+          </div>
+          <span class="stem-db">-3.2 dB</span>
+        </div>
+
+        <!-- Drums -->
+        <div class="stem-row">
+          <span class="stem-name">Drums</span>
+          <div class="stem-track">
+            <div class="stem-bars" id="stems-drums"></div>
+          </div>
+          <span class="stem-db">-6.1 dB</span>
+        </div>
+
+        <!-- Bass -->
+        <div class="stem-row">
+          <span class="stem-name">Bass</span>
+          <div class="stem-track">
+            <div class="stem-bars" id="stems-bass"></div>
+          </div>
+          <span class="stem-db">-8.4 dB</span>
+        </div>
+
+        <!-- Guitar -->
+        <div class="stem-row">
+          <span class="stem-name">Guitar</span>
+          <div class="stem-track">
+            <div class="stem-bars" id="stems-guitar"></div>
+          </div>
+          <span class="stem-db">-9.0 dB</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════
+     PROBLEM
+════════════════════════════════════ -->
+<section class="section" id="problem">
+  <div class="wrap">
+    <div class="problem-header">
+      <div class="section-eyebrow reveal">The problem</div>
+      <h2 class="section-h reveal d1">Every option forces a <span class="grad">trade-off</span></h2>
+      <p class="section-p reveal d2">
+        Human engineers are expensive. DIY takes months. Existing AI tools give you a black-box stereo export with zero control. NeuralMix is the first tool that's all three.
+      </p>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar reveal d1">
+        <div class="pillar-num">01</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="pillar-h">Easy</div>
+        <p class="pillar-p">One-click workflow. <strong>No months of tutorials</strong>, no signal chain expertise. Describe what you hear, NeuralMix handles the rest.</p>
+      </div>
+      <div class="pillar reveal d2">
+        <div class="pillar-num">02</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="pillar-h">Affordable</div>
+        <p class="pillar-p">Human engineers charge <strong>$200–$800 per track</strong> — and that's before revisions. NeuralMix is a flat monthly subscription.</p>
+      </div>
+      <div class="pillar reveal d3">
+        <div class="pillar-num">03</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        </div>
+        <div class="pillar-h">Controllable</div>
+        <p class="pillar-p"><strong>Stem-level precision</strong>. Tweak vocals, drums, guitar, and bass individually — not a stereo black-box like LANDR or Logic's "Auto Mix".</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     SOLUTION
+════════════════════════════════════ -->
+<section class="section" id="solution">
+  <div class="wrap">
+    <div class="solution-layout">
+
+      <div>
+        <div class="section-eyebrow reveal">How it works</div>
+        <h2 class="section-h reveal d1">Tell it what you want.<br><span class="grad">It does the rest.</span></h2>
+        <p class="section-p reveal d2" style="margin-bottom: 36px;">
+          NeuralMix lives as a native DAW plugin. Upload your stems, describe your vision in plain English, and watch your mix transform in seconds.
+        </p>
+
+        <div class="solution-features reveal d3">
+          <div class="feat-item">
+            <div class="feat-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <div>
+              <div class="feat-h">Natural language control</div>
+              <p class="feat-p">"Make the vocals punchier" or "add more low-end warmth" — no EQ curves, no compressor ratios.</p>
+            </div>
+          </div>
+          <div class="feat-item">
+            <div class="feat-icon">
+              <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            </div>
+            <div>
+              <div class="feat-h">Stem-level FX chains</div>
+              <p class="feat-p">Each track gets its own independently processed signal path. Vocals, drums, bass, and guitar — treated separately.</p>
+            </div>
+          </div>
+          <div class="feat-item">
+            <div class="feat-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div>
+              <div class="feat-h">DAW-native, zero friction</div>
+              <p class="feat-p">No exports, no round-trips. NeuralMix applies changes directly in Ableton, Logic, and FL Studio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo card -->
+      <div class="solution-demo reveal d2">
+        <div class="demo-card">
+          <div class="demo-titlebar">
+            <div class="demo-dots">
+              <div class="demo-dot"></div>
+              <div class="demo-dot"></div>
+              <div class="demo-dot"></div>
+            </div>
+            <div class="demo-title">NeuralMix · Ableton Live</div>
+          </div>
+          <div class="demo-body">
+
+            <div class="demo-chat-user">
+              <div class="chat-bubble user">
+                "The vocals feel buried — make them cut through the mix without getting harsh. Also punch up the kick."
+              </div>
+            </div>
+
+            <div>
+              <div class="chat-bubble ai">
+                <div class="ai-label">NeuralMix AI</div>
+                Analyzing your stems… I'll increase vocal presence around 3–5kHz with a high shelf boost, add a touch of saturation, and tighten the kick attack. Applying now.
+              </div>
+            </div>
+
+            <div class="demo-applying">
+              <div class="applying-label">Applying FX chains</div>
+              <div class="applying-track">
+                <span class="at-name">Vocals</span>
+                <div class="at-bar-track"><div class="at-bar-fill" style="width:100%"></div></div>
+                <span class="at-tag">+3dB shelf</span>
+              </div>
+              <div class="applying-track">
+                <span class="at-name">Kick</span>
+                <div class="at-bar-track"><div class="at-bar-fill" style="width:78%"></div></div>
+                <span class="at-tag">Transient</span>
+              </div>
+              <div class="applying-track">
+                <span class="at-name">Bus</span>
+                <div class="at-bar-track"><div class="at-bar-fill" style="width:55%"></div></div>
+                <span class="at-tag">Glue comp</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     MARKET STATS
+════════════════════════════════════ -->
+<section id="market">
+  <div class="wrap">
+    <div class="stats-row reveal">
+      <div class="stat-cell">
+        <div class="stat-num">12<span class="stat-unit">M</span></div>
+        <div class="stat-label">Artists currently on Spotify</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">500<span class="stat-unit">K</span></div>
+        <div class="stat-label">Addressable amateur creators</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">66<span class="stat-unit">%</span></div>
+        <div class="stat-label">AI adoption willingness among active creators</div>
+      </div>
+    </div>
+    <p class="market-note reveal d1">
+      <strong>1.58M active creators</strong> release music today without access to professional mixing. Every new track is a recurring need — and NeuralMix fits directly inside the workflow they already use.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     PRICING — LOCKED
+════════════════════════════════════ -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="pricing-header">
+      <div class="section-eyebrow reveal">Pricing</div>
+      <h2 class="section-h reveal d1">Simple, <span class="grad">transparent</span> pricing</h2>
+      <p class="section-p reveal d2">
+        Pricing tiers will be announced to waitlist members first. Join now for exclusive early-adopter rates.
+      </p>
+    </div>
+
+    <div class="pricing-stage reveal d2">
+      <div class="pricing-cards">
+        <div class="pc">
+          <div class="pc-tier">Starter</div>
+          <div class="pc-price">$0</div>
+          <div class="pc-desc">2 projects/month · full FX chain per stem · watermarked export</div>
+          <div class="pc-badge">Acquisition</div>
+        </div>
+        <div class="pc featured">
+          <div class="pc-tier">Creator ★</div>
+          <div class="pc-price">$19<sub>/mo</sub></div>
+          <div class="pc-desc">15 projects/month · natural language control · full FX per stem</div>
+          <div class="pc-badge">Most popular</div>
+        </div>
+        <div class="pc">
+          <div class="pc-tier">Pro</div>
+          <div class="pc-price">$49<sub>/mo</sub></div>
+          <div class="pc-desc">Unlimited · reference audio matching · priority compute</div>
+          <div class="pc-badge">Power users</div>
+        </div>
+      </div>
+
+      <div class="lock-overlay">
+        <div class="lock-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="lock-h">Pricing revealed at launch</div>
+        <p class="lock-p">Waitlist members get early access rates first.</p>
+        <a href="#waitlist" class="btn-hero" style="font-size:13px;padding:11px 22px;">
+          Join the waitlist
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     WAITLIST
+════════════════════════════════════ -->
+<section id="waitlist">
+  <div class="wrap">
+    <div class="waitlist-layout">
+
+      <div class="waitlist-left">
+        <div class="section-eyebrow reveal">Early access</div>
+        <h2 class="section-h reveal d1">Be first.<br><span class="grad">Mix differently.</span></h2>
+        <p class="section-p reveal d2">
+          Reserve your spot before launch. Early access members get priority onboarding, exclusive pricing, and direct influence on what we build next.
+        </p>
+
+        <ul class="benefit-list reveal d3">
+          <li>
+            <div class="benefit-check">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Priority access before public launch
+          </li>
+          <li>
+            <div class="benefit-check">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Exclusive early-adopter pricing
+          </li>
+          <li>
+            <div class="benefit-check">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Direct line to the team — shape the roadmap
+          </li>
+          <li>
+            <div class="benefit-check">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            No spam. Unsubscribe any time.
+          </li>
+        </ul>
+      </div>
+
+      <div class="reveal d2">
+        <div class="form-card">
+
+          <div id="form-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="f-name">Name</label>
+                <input type="text" id="f-name" placeholder="Your name" autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="f-email">Email</label>
+                <input type="email" id="f-email" placeholder="you@email.com" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="f-daw">Primary DAW</label>
+                <select id="f-daw">
+                  <option value="" disabled selected>Select your DAW</option>
+                  <option>Ableton Live</option>
+                  <option>Logic Pro</option>
+                  <option>FL Studio</option>
+                  <option>Pro Tools</option>
+                  <option>GarageBand</option>
+                  <option>Reaper</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="f-tracks">Tracks per year</label>
+                <select id="f-tracks">
+                  <option value="" disabled selected>How prolific?</option>
+                  <option>1–3 tracks</option>
+                  <option>4–12 tracks</option>
+                  <option>13–30 tracks</option>
+                  <option>30+ tracks</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="btn-submit" onclick="submitForm()">
+              <svg viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/><rect x="2" y="6" width="20" height="14" rx="2"/></svg>
+              Reserve my spot
+            </button>
+            <p class="form-note">No credit card required. We'll email you before launch.</p>
+          </div>
+
+          <div class="form-success" id="form-success">
+            <div class="success-mark">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="success-h">You're on the list.</div>
+            <p class="success-p">We'll reach out before launch with early access details. Keep making music.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     TEAM
+════════════════════════════════════ -->
+<section id="team">
+  <div class="wrap">
+    <div class="team-header">
+      <div class="section-eyebrow reveal">The team</div>
+      <h2 class="section-h reveal d1">Built by people who <span class="grad">live this problem</span></h2>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card reveal d1">
+        <div class="team-head">
+          <div class="team-av">
+            <img src="../exec-summary/src/img/jimmy.jpeg" alt="Jimmy" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <div class="team-name">Song-Ze (Jimmy)</div>
+            <div class="team-role">CEO</div>
+          </div>
+        </div>
+        <ul class="team-bio">
+          <li>Musician &amp; Computer Scientist</li>
+          <li><strong>70+ TV shows</strong> &amp; 24 solo piano concerts across Asia</li>
+          <li>Research Lead — Berkeley <strong>CNMAT &amp; BAIR Lab</strong></li>
+          <li>Berkeley Computer Science</li>
+        </ul>
+      </div>
+      <div class="team-card reveal d2">
+        <div class="team-head">
+          <div class="team-av">
+            <img src="../exec-summary/src/img/big.jpg" alt="Big" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <div class="team-name">Big</div>
+            <div class="team-role">COO</div>
+          </div>
+        </div>
+        <ul class="team-bio">
+          <li>Founder Institute Bangkok cohort</li>
+          <li>Founded <strong>PassionSeed</strong> — best edtech in Thailand</li>
+          <li>Ran hackathon with <strong>900+ participants</strong></li>
+          <li>Berkeley SCET</li>
+        </ul>
+      </div>
+      <div class="team-card reveal d3">
+        <div class="team-head">
+          <div class="team-av">
+            <img src="../exec-summary/src/img/orin.jpeg" alt="Orin" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <div class="team-name">Orin</div>
+            <div class="team-role">Marketing</div>
+          </div>
+        </div>
+        <ul class="team-bio">
+          <li>Marketing consultant, CodeCracker &amp; FaceFountry</li>
+          <li>Personal network of <strong>20+ amateur artists</strong></li>
+          <li>Professional FL Studio mixer</li>
+          <li>Berkeley Business (Haas)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="team-banner reveal d2">
+      <div class="banner-sym">∩</div>
+      <p class="banner-text">
+        A rare intersection of <strong>professional music performance</strong>, <strong>AI research</strong>, and <strong>startup execution</strong> — with direct relationships to target customers from day one. We are the user.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     FOOTER
+════════════════════════════════════ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <a href="#" class="footer-logo">
+        <div class="footer-logo-mark">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        NeuralMix
+      </a>
+      <p class="footer-copy">© 2026 NeuralMix, Inc. — Berkeley, CA</p>
+      <div class="footer-links">
+        <a href="mailto:hello@neuralmix.ai">Contact</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Stem waveform bars ── */
+function makeBars(id, color, count) {
+  const container = document.getElementById(id);
+  if (!container) return;
+  for (let i = 0; i < count; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'stem-bar';
+    const h = 6 + Math.random() * 18;
+    bar.style.cssText = `
+      height: ${h}px;
+      background: ${color};
+      --dur: ${0.6 + Math.random() * 1.2}s;
+      --del: ${Math.random() * 0.8}s;
+    `;
+    container.appendChild(bar);
+  }
+}
+
+makeBars('stems-vocal',  '#60a5fa', 48);
+makeBars('stems-drums',  '#818cf8', 48);
+makeBars('stems-bass',   '#34d399', 48);
+makeBars('stems-guitar', '#fb923c', 48);
+
+/* ── Scroll reveal ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('shown');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ── Navbar scroll tint ── */
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 60) {
+    nav.style.background = 'rgba(7,11,20,.92)';
+  } else {
+    nav.style.background = 'rgba(7,11,20,.65)';
+  }
+}, { passive: true });
+
+/* ── Waitlist form ── */
+function submitForm() {
+  const name  = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const daw   = document.getElementById('f-daw').value;
+
+  if (!name)                          { flashField('f-name');  return; }
+  if (!email || !email.includes('@')) { flashField('f-email'); return; }
+  if (!daw)                           { flashField('f-daw');   return; }
+
+  document.getElementById('form-body').style.display    = 'none';
+  document.getElementById('form-success').style.display = 'flex';
+}
+
+function flashField(id) {
+  const el = document.getElementById(id);
+  el.style.borderColor = '#f87171';
+  el.focus();
+  setTimeout(() => { el.style.borderColor = ''; }, 1200);
+}
+</script>
+</body>
+</html>
