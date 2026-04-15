@@ -170,12 +170,15 @@
     .demo-logo-icon {
       width: 36px;
       height: 36px;
-      background: linear-gradient(135deg, var(--aurora-teal), var(--aurora-green));
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      overflow: hidden;
       box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+    }
+
+    .demo-logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .demo-badge {
@@ -678,9 +681,7 @@
     <header class="demo-header">
       <a href="index.html" class="demo-logo">
         <div class="demo-logo-icon">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2.5">
-            <path d="M3 12h4l3-9 4 18 3-9h4"/>
-          </svg>
+          <img src="assets/logo.png" alt="NeuralMix">
         </div>
         NeuralMix
       </a>
