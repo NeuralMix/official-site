@@ -1,3 +1,7 @@
 .vercel
 .gstack/
+
+# Environment files (contain secrets)
+.env.local
 .env
+.env.*.local
