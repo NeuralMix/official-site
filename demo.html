@@ -252,6 +252,21 @@
       color: var(--aurora-teal);
     }
 
+    .daw-btn-mix {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
+      border-color: rgba(34, 211, 238, 0.4);
+      color: var(--aurora-teal);
+    }
+    .daw-btn-mix:hover {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(168, 85, 247, 0.35));
+      border-color: var(--aurora-teal);
+      color: #fff;
+    }
+    .daw-btn-mix:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     .tracks-container {
       flex: 1;
       overflow-y: auto;
@@ -866,6 +881,7 @@
           <span class="daw-title">Session: Demo_Track_001</span>
           <div class="daw-controls">
             <button class="daw-btn" id="play-btn" onclick="togglePlay()">▶ Play</button>
+            <button class="daw-btn daw-btn-mix" id="mix-btn" onclick="mixEverything()">✦ Mix Everything</button>
             <button class="daw-btn" onclick="resetDemo()">↺ Reset</button>
           </div>
         </div>
@@ -880,7 +896,7 @@
         
         <div class="chat-messages" id="chat-messages">
           <div class="message ai">
-            Hi! I'm your AI mixing co-pilot. Describe what you want to hear, and I'll apply the right FX chains to each stem. Try commands like "make vocals punchier" or "add warmth to the mix."
+            Hi! I'm your AI audio engineer — I can really understand and hear your tracks. Tell me what you want, and I'll dial in the right FX chains across every stem. Try "make vocals cut through" or just hit <strong>Mix Everything</strong> to let me take the wheel.
           </div>
         </div>
 
@@ -944,20 +960,21 @@
       `).join('');
     }
 
-    function togglePlay() {
-      isPlaying = !isPlaying;
-      const btn = document.getElementById('play-btn');
-      btn.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
-      btn.classList.toggle('active', isPlaying);
-      document.querySelectorAll('.waveform-bar').forEach(bar => {
-        bar.style.animationPlayState = isPlaying ? 'running' : 'paused';
-      });
-    }
-
     function resetDemo() {
       tracks.forEach(track => { track.fx = []; track.processing = false; });
       renderTracks();
       document.getElementById('chat-messages').innerHTML = '<div class="message ai">Demo reset! All FX chains cleared. Try another command.</div>';
+      const mixBtn = document.getElementById('mix-btn');
+      mixBtn.disabled = false;
+      mixBtn.textContent = '✦ Mix Everything';
+      if (aiMixed) {
+        aiMixed = false;
+        const wasPlaying = isPlaying;
+        audio.pause();
+        audio.src = 'assets/unmix.wav';
+        audio.load();
+        if (wasPlaying) audio.play();
+      }
     }
 
     function sendQuickPrompt(text) {
@@ -965,13 +982,61 @@
       sendMessage();
     }
 
+    function mixEverything() {
+      const btn = document.getElementById('mix-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Mixing...';
+      document.getElementById('chat-input').value = '__mix_everything__';
+      sendMessage();
+    }
+
+    const MIX_EVERYTHING_RESPONSE = {
+      reasoning: "I'm doing a full mix pass across all five stems. Vocals get presence boost, compression, and a touch of saturation for intelligibility. Drums get transient shaping and parallel compression to punch without losing dynamics. Bass gets tube saturation and low-mid reinforcement for warmth and definition. Guitar gets tape saturation, a low-shelf warmth boost, and stereo widening. The synth pad gets widened hard and placed in a reverb for depth — it should sit behind everything else and glue the top end together.",
+      trackUpdates: {
+        vocals: [
+          { name: 'EQ High-Shelf', params: { freq: '4000Hz', gain: '+3dB', Q: '0.8' } },
+          { name: 'Compressor', params: { threshold: '-12dB', ratio: '3:1', attack: '5ms', release: '80ms' } },
+          { name: 'Saturator', params: { drive: '15%', mix: '25%' } },
+          { name: 'De-Esser', params: { freq: '7500Hz', threshold: '-18dB', range: '8dB' } }
+        ],
+        drums: [
+          { name: 'Transient Shaper', params: { attack: '+6dB', sustain: '-3dB' } },
+          { name: 'Compressor', params: { threshold: '-8dB', ratio: '4:1', attack: '2ms', release: '40ms' } },
+          { name: 'EQ High-Pass', params: { freq: '60Hz', slope: '12dB/oct' } },
+          { name: 'EQ Bell', params: { freq: '5000Hz', gain: '+2dB', Q: '1.5' } }
+        ],
+        bass: [
+          { name: 'Saturator', params: { drive: '18%', mix: '30%', type: 'tube' } },
+          { name: 'EQ Bell', params: { freq: '120Hz', gain: '+2.5dB', Q: '1.2' } },
+          { name: 'Compressor', params: { threshold: '-14dB', ratio: '3:1', attack: '8ms', release: '120ms' } },
+          { name: 'EQ High-Pass', params: { freq: '40Hz', slope: '18dB/oct' } }
+        ],
+        guitar: [
+          { name: 'EQ Low-Shelf', params: { freq: '250Hz', gain: '+2dB' } },
+          { name: 'Saturator', params: { drive: '20%', mix: '30%', type: 'tape' } },
+          { name: 'Stereo Delay', params: { left: '15ms', right: '25ms', mix: '15%' } },
+          { name: 'Light Reverb', params: { mix: '14%', decay: '0.9s', pre_delay: '12ms' } }
+        ],
+        synth: [
+          { name: 'Stereo Widener', params: { width: '140%', freq: '400Hz-12kHz' } },
+          { name: 'Reverb Plate', params: { size: '75%', decay: '1.4s', mix: '22%' } },
+          { name: 'EQ Low-Pass', params: { freq: '12000Hz', slope: '6dB/oct' } },
+          { name: 'Compressor', params: { threshold: '-20dB', ratio: '2:1', attack: '15ms', release: '200ms' } }
+        ]
+      }
+    };
+
     async function callMiniMax(userMessage) {
       return simulateMiniMaxResponse(userMessage);
     }
 
     function simulateMiniMaxResponse(message) {
       const lowerMsg = message.toLowerCase();
-      
+
+      if (lowerMsg === '__mix_everything__') {
+        return MIX_EVERYTHING_RESPONSE;
+      }
+
       if (lowerMsg.includes('vocal') && (lowerMsg.includes('punch') || lowerMsg.includes('cut'))) {
         return {
           reasoning: "To make vocals cut through the mix, I need to enhance presence in the 3-5kHz range where vocal intelligibility lives. I'll add a high-shelf EQ boost and light compression to even out dynamics. A touch of saturation will add harmonics for perceived loudness without harshness.",
@@ -1204,7 +1269,8 @@
       input.disabled = true;
       sendBtn.disabled = true;
       
-      chat.innerHTML += `<div class="message user">${escapeHtml(message)}</div>`;
+      const displayMessage = message === '__mix_everything__' ? '✦ Mix Everything' : message;
+      chat.innerHTML += `<div class="message user">${escapeHtml(displayMessage)}</div>`;
       
       const typingId = 'typing-' + Date.now();
       chat.innerHTML += `
@@ -1319,12 +1385,13 @@
         await sleep(1500);
         document.getElementById(applyingId)?.remove();
         
-        Object.entries(response.trackUpdates).forEach(([trackId, fxList], index) => {
+        const trackEntries = Object.entries(response.trackUpdates);
+        trackEntries.forEach(([trackId, fxList], index) => {
           const track = tracks.find(t => t.id === trackId);
           if (track) {
             track.processing = true;
             renderTracks();
-            
+
             setTimeout(() => {
               track.fx = fxList.map(fx => ({
                 name: fx.name,
@@ -1336,6 +1403,9 @@
               track.processing = false;
               renderTracks();
               document.getElementById(`track-${trackId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              if (index === trackEntries.length - 1) {
+                switchToAIMix();
+              }
             }, 1500 + (index * 800));
           }
         });
@@ -1358,6 +1428,38 @@
     }
 
     renderTracks();
+
+    // Audio playback
+    const audio = new Audio('assets/unmix.wav');
+    audio.loop = true;
+    let aiMixed = false;
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('play-btn');
+      btn.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+      btn.classList.toggle('active', isPlaying);
+      document.querySelectorAll('.waveform-bar').forEach(bar => {
+        bar.style.animationPlayState = isPlaying ? 'running' : 'paused';
+      });
+      if (isPlaying) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+
+    function switchToAIMix() {
+      if (aiMixed) return;
+      aiMixed = true;
+      const wasPlaying = isPlaying;
+      audio.pause();
+      audio.src = 'assets/mix.wav';
+      audio.load();
+      if (wasPlaying) {
+        audio.play();
+      }
+    }
   </script>
 </body>
 </html>
