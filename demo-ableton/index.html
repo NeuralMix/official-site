@@ -104,6 +104,31 @@
       gap: 16px;
     }
 
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .logo-icon a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .logo-icon a:hover {
+      opacity: 0.8;
+    }
+
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .transport-section {
       display: flex;
       align-items: center;
@@ -161,22 +186,26 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
+      padding: 4px 10px 4px 6px;
       background: rgba(34, 211, 238, 0.15);
       border: 1px solid rgba(34, 211, 238, 0.3);
       border-radius: 4px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--accent-cyan);
     }
 
-    .neural-badge::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--accent-cyan);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
+    .neural-badge-logo {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .neural-badge-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     /* Main Layout */
@@ -908,6 +937,11 @@
   <div class="ableton-container">
     <div class="transport-bar">
       <div class="transport-left">
+        <div class="logo-icon">
+          <a href="../index.html" title="Back to Home">
+            <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+          </a>
+        </div>
         <div class="transport-section">
           <span class="transport-label">Tap</span>
           <span class="transport-value">137.00</span>
@@ -935,7 +969,10 @@
       </div>
       
       <div class="neural-badge">
-        NeuralMix AI Active
+        <div class="neural-badge-logo">
+          <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+        </div>
+        <span>Powered by MiniMax M2.7</span>
       </div>
       
       <div class="transport-section">

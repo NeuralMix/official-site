@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuralMix — Logic Pro AI Integration Demo</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%2322d3ee'/><path d='M25 70 L25 30 L40 55 L55 20 L70 50 L75 30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Logic Pro Dark Theme Colors */
+      --logic-bg: #1e1e1e;
+      --logic-bg-dark: #181818;
+      --logic-bg-darker: #121212;
+      --logic-bg-panel: #252525;
+      --logic-bg-elevated: #2d2d2d;
+      --logic-border: #3a3a3a;
+      --logic-border-light: #4a4a4a;
+      --logic-toolbar: #2a2a2a;
+
+      /* Track Colors - Logic Pro Style (more saturated, vibrant) */
+      --track-drums: #4ecdc4;
+      --track-bass: #96ceb4;
+      --track-drone: #88d8b0;
+      --track-pads: #f7dc6f;
+      --track-keys: #bb8fce;
+      --track-melody: #f8c471;
+      --track-vocal: #f1948a;
+      --track-fills: #85c1e9;
+
+      /* Text Colors */
+      --text-primary: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --text-muted: #707070;
+      --text-dark: #505050;
+
+      /* Accent - Logic blue */
+      --accent-blue: #5dade2;
+      --accent-blue-glow: rgba(93, 173, 226, 0.3);
+      --accent-cyan: #22d3ee;
+      --accent-green: #58d68d;
+      --accent-orange: #f5b041;
+      --accent-red: #ec7063;
+      --accent-yellow: #f4d03f;
+
+      /* Transport */
+      --transport-bg: #2a2a2a;
+      --lcd-bg: #1a1a1a;
+      --lcd-text: #5dade2;
+
+      /* Animation */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes waveform {
+      0%, 100% { transform: scaleY(0.3); opacity: 0.4; }
+      50% { transform: scaleY(1); opacity: 0.8; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(93, 173, 226, 0.4); }
+      50% { box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.1); }
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-3px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes meterGlow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--logic-bg);
+      color: var(--text-primary);
+      line-height: 1.4;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .logic-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Top Toolbar */
+    .top-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: var(--logic-toolbar);
+      border-bottom: 1px solid var(--logic-border);
+      font-size: 12px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .logo-icon a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .logo-icon a:hover {
+      opacity: 0.8;
+    }
+
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .toolbar-btn {
+      padding: 4px 10px;
+      background: var(--logic-bg-panel);
+      border: 1px solid var(--logic-border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: var(--logic-bg-elevated);
+      border-color: var(--logic-border-light);
+    }
+
+    .toolbar-btn.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--logic-border);
+    }
+
+    /* Transport Bar */
+    .transport-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 8px 16px;
+      background: var(--logic-bg-dark);
+      border-bottom: 1px solid var(--logic-border);
+    }
+
+    .transport-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .transport-btn {
+      padding: 6px 12px;
+      background: var(--logic-bg-panel);
+      border: 1px solid var(--logic-border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .transport-btn:hover {
+      background: var(--logic-bg-elevated);
+      border-color: var(--logic-border-light);
+    }
+
+    .transport-btn.primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+      font-weight: 600;
+    }
+
+    .transport-btn.primary:hover {
+      background: #6bb3e8;
+    }
+
+    .transport-btn.record {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      color: white;
+    }
+
+    /* LCD Display */
+    .lcd-display {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 6px 20px;
+      background: var(--lcd-bg);
+      border: 1px solid var(--logic-border);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .lcd-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .lcd-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .lcd-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--lcd-text);
+    }
+
+    .lcd-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--logic-border);
+    }
+
+    .neural-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px 4px 6px;
+      background: rgba(93, 173, 226, 0.15);
+      border: 1px solid rgba(93, 173, 226, 0.3);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent-blue);
+    }
+
+    .neural-badge-logo {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .neural-badge-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Main Layout */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Inspector Sidebar (Logic style - left side) */
+    .inspector-sidebar {
+      width: 260px;
+      background: var(--logic-bg-dark);
+      border-right: 1px solid var(--logic-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .inspector-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--logic-bg-panel);
+      border-bottom: 1px solid var(--logic-border);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .inspector-tab {
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .inspector-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .inspector-tab.active {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .inspector-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .inspector-section {
+      margin-bottom: 16px;
+      background: var(--logic-bg-panel);
+      border: 1px solid var(--logic-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .inspector-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--logic-bg-elevated);
+      border-bottom: 1px solid var(--logic-border);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .inspector-section-body {
+      padding: 10px 12px;
+    }
+
+    .param-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--logic-border);
+    }
+
+    .param-row:last-child {
+      border-bottom: none;
+    }
+
+    .param-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .param-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .plugin-slot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--logic-bg);
+      border: 1px solid var(--logic-border);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .plugin-slot:hover {
+      border-color: var(--accent-blue);
+      background: rgba(93, 173, 226, 0.05);
+    }
+
+    .plugin-slot.active {
+      border-color: var(--accent-blue);
+      background: rgba(93, 173, 226, 0.1);
+    }
+
+    .plugin-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .plugin-icon.eq { background: linear-gradient(135deg, #5dade2, #85c1e9); }
+    .plugin-icon.comp { background: linear-gradient(135deg, #58d68d, #82e0aa); }
+    .plugin-icon.reverb { background: linear-gradient(135deg, #bb8fce, #d2b4de); }
+    .plugin-icon.delay { background: linear-gradient(135deg, #f5b041, #f8c471); }
+    .plugin-icon.sat { background: linear-gradient(135deg, #ec7063, #f1948a); }
+
+    /* Arrange Area */
+    .arrange-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Ruler */
+    .ruler {
+      display: flex;
+      align-items: center;
+      height: 28px;
+      background: var(--logic-bg-dark);
+      border-bottom: 1px solid var(--logic-border);
+      padding: 0 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .ruler-mark {
+      flex: 1;
+      text-align: center;
+      border-left: 1px solid var(--logic-border);
+      padding-left: 4px;
+    }
+
+    /* Tracks */
+    .tracks-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .track-row {
+      display: flex;
+      height: 56px;
+      border-bottom: 1px solid var(--logic-border);
+    }
+
+    .track-header {
+      width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--logic-bg-panel);
+      border-right: 1px solid var(--logic-border);
+      flex-shrink: 0;
+    }
+
+    .track-color-bar {
+      width: 4px;
+      height: 100%;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .track-color-bar.drums { background: var(--track-drums); }
+    .track-color-bar.bass { background: var(--track-bass); }
+    .track-color-bar.drone { background: var(--track-drone); }
+    .track-color-bar.pads { background: var(--track-pads); }
+    .track-color-bar.keys { background: var(--track-keys); }
+    .track-color-bar.melody { background: var(--track-melody); }
+    .track-color-bar.vocal { background: var(--track-vocal); }
+
+    .track-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .track-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .track-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.6;
+    }
+
+    .track-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .track-buttons {
+      display: flex;
+      gap: 3px;
+    }
+
+    .track-btn {
+      width: 18px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--logic-bg);
+      border: 1px solid var(--logic-border);
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .track-btn:hover {
+      border-color: var(--logic-border-light);
+    }
+
+    .track-btn.mute.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+
+    .track-btn.solo.active {
+      background: var(--accent-yellow);
+      border-color: var(--accent-yellow);
+      color: var(--logic-bg-dark);
+    }
+
+    .track-btn.record.active {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      color: white;
+    }
+
+    .track-meter {
+      width: 8px;
+      height: 32px;
+      background: var(--logic-bg-dark);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--accent-green), var(--accent-yellow), var(--accent-red));
+      border-radius: 2px;
+      animation: meterGlow 0.5s ease-in-out infinite;
+    }
+
+    .track-region-area {
+      flex: 1;
+      position: relative;
+      background: var(--logic-bg);
+    }
+
+    .region {
+      position: absolute;
+      height: 40px;
+      top: 8px;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+
+    .region:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .region.drums { background: var(--track-drums); }
+    .region.bass { background: var(--track-bass); }
+    .region.drone { background: var(--track-drone); }
+    .region.pads { background: var(--track-pads); }
+    .region.keys { background: var(--track-keys); }
+    .region.melody { background: var(--track-melody); }
+    .region.vocal { background: var(--track-vocal); }
+
+    .region-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .region-waveform {
+      position: absolute;
+      bottom: 2px;
+      left: 4px;
+      right: 4px;
+      height: 14px;
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      opacity: 0.4;
+    }
+
+    .region-waveform-bar {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 1px;
+      min-height: 2px;
+    }
+
+    /* Mixer Strip (right of arrange) */
+    .mixer-strip {
+      width: 120px;
+      background: var(--logic-bg-dark);
+      border-left: 1px solid var(--logic-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 6px;
+      gap: 6px;
+    }
+
+    .mixer-channel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .mixer-channel-name {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .mixer-meter {
+      width: 10px;
+      flex: 1;
+      background: var(--logic-bg);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mixer-meter-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--accent-green) 0%, var(--accent-green) 60%, var(--accent-yellow) 80%, var(--accent-red) 100%);
+      border-radius: 2px;
+    }
+
+    .mixer-fader {
+      width: 24px;
+      height: 4px;
+      background: var(--logic-border-light);
+      border-radius: 2px;
+      position: relative;
+      cursor: ns-resize;
+    }
+
+    .mixer-fader::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 16px;
+      background: var(--logic-bg-elevated);
+      border: 1px solid var(--logic-border-light);
+      border-radius: 2px;
+    }
+
+    .mixer-pan {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-blue) 0deg, var(--accent-blue) 180deg, var(--logic-bg) 180deg);
+      border: 2px solid var(--logic-border);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .mixer-pan::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 6px;
+      background: var(--text-primary);
+      border-radius: 1px;
+    }
+
+    /* Bottom Smart Controls / FX Area */
+    .smart-controls {
+      height: 200px;
+      background: var(--logic-bg-dark);
+      border-top: 1px solid var(--logic-border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .smart-controls-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background: var(--logic-bg-panel);
+      border-bottom: 1px solid var(--logic-border);
+      font-size: 12px;
+    }
+
+    .smart-controls-title {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .smart-controls-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .smart-tab {
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--logic-bg);
+      border: 1px solid var(--logic-border);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .smart-tab:hover {
+      color: var(--text-secondary);
+    }
+
+    .smart-tab.active {
+      background: var(--logic-bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--logic-border-light);
+    }
+
+    .smart-controls-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px;
+    }
+
+    .smart-knob-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .smart-knob {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-blue) 0deg, var(--accent-blue) var(--knob-angle, 135deg), var(--logic-bg-dark) var(--knob-angle, 135deg));
+      border: 3px solid var(--logic-border);
+      position: relative;
+      cursor: ns-resize;
+    }
+
+    .smart-knob::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 10px;
+      background: var(--text-primary);
+      border-radius: 2px;
+    }
+
+    .smart-knob-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .smart-knob-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* AI Panel */
+    .ai-panel {
+      width: 380px;
+      background: var(--logic-bg-dark);
+      border-left: 1px solid var(--logic-border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-header {
+      padding: 16px;
+      background: var(--logic-bg-panel);
+      border-bottom: 1px solid var(--logic-border);
+    }
+
+    .ai-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .ai-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 90%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--accent-blue);
+      color: white;
+      font-weight: 500;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: var(--logic-bg-panel);
+      border: 1px solid var(--logic-border);
+      color: var(--text-primary);
+    }
+
+    .message.ai .reasoning-block {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(93, 173, 226, 0.1);
+      border-radius: 6px;
+      border-left: 2px solid var(--accent-blue);
+    }
+
+    .message.ai .reasoning-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .message.ai .fx-list {
+      margin-top: 10px;
+    }
+
+    .message.ai .fx-item {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--logic-border);
+      font-size: 11px;
+    }
+
+    .message.ai .fx-item:last-child {
+      border-bottom: none;
+    }
+
+    .message.ai .fx-track-name {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+    }
+
+    .message.ai .fx-effect-name {
+      color: var(--accent-cyan);
+      font-weight: 500;
+    }
+
+    .message.ai .fx-params {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .message.ai .param-chip {
+      padding: 2px 6px;
+      background: var(--logic-bg);
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 3px;
+      padding: 8px 0;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .ai-input-area {
+      padding: 12px 16px;
+      background: var(--logic-bg-panel);
+      border-top: 1px solid var(--logic-border);
+    }
+
+    .quick-prompts {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .quick-prompt {
+      padding: 6px 10px;
+      background: var(--logic-bg);
+      border: 1px solid var(--logic-border);
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .quick-prompt:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .ai-input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 10px 12px;
+      background: var(--logic-bg);
+      border: 1px solid var(--logic-border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .ai-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .ai-input::placeholder {
+      color: var(--text-dark);
+    }
+
+    .ai-send {
+      padding: 10px 16px;
+      background: var(--accent-blue);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-send:hover {
+      background: #6bb3e8;
+    }
+
+    .ai-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .ai-panel { width: 340px; }
+      .inspector-sidebar { width: 220px; }
+    }
+
+    @media (max-width: 1100px) {
+      .inspector-sidebar { display: none; }
+      .ai-panel { width: 300px; }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--logic-bg-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--logic-border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--logic-border-light);
+    }
+  </style>
+</head>
+<body>
+  <div class="logic-container">
+    <!-- Top Toolbar -->
+    <div class="top-toolbar">
+      <div class="toolbar-left">
+        <div class="logo-icon">
+          <a href="../index.html" title="Back to Home">
+            <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+          </a>
+        </div>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn">File</button>
+        <button class="toolbar-btn">Edit</button>
+        <button class="toolbar-btn">Track</button>
+        <button class="toolbar-btn">Navigate</button>
+        <button class="toolbar-btn">Record</button>
+        <button class="toolbar-btn">Mix</button>
+        <button class="toolbar-btn">View</button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn active" onclick="resetDemo()">↺ Reset</button>
+      </div>
+
+      <div class="neural-badge">
+        <div class="neural-badge-logo">
+          <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+        </div>
+        <span>Powered by MiniMax M2.7</span>
+      </div>
+    </div>
+
+    <!-- Transport Bar -->
+    <div class="transport-bar">
+      <div class="transport-controls">
+        <button class="transport-btn">⏮</button>
+        <button class="transport-btn">⏪</button>
+        <button class="transport-btn primary" id="play-btn" onclick="togglePlay()">▶</button>
+        <button class="transport-btn record">⏺</button>
+        <button class="transport-btn">⏹</button>
+        <button class="transport-btn">⏩</button>
+        <button class="transport-btn">⏭</button>
+      </div>
+
+      <div class="lcd-display">
+        <div class="lcd-section">
+          <span class="lcd-label">Position</span>
+          <span class="lcd-value">1 1 1 1</span>
+        </div>
+        <div class="lcd-divider"></div>
+        <div class="lcd-section">
+          <span class="lcd-label">Tempo</span>
+          <span class="lcd-value">137.00</span>
+        </div>
+        <div class="lcd-divider"></div>
+        <div class="lcd-section">
+          <span class="lcd-label">Key</span>
+          <span class="lcd-value">E min</span>
+        </div>
+        <div class="lcd-divider"></div>
+        <div class="lcd-section">
+          <span class="lcd-label">Time</span>
+          <span class="lcd-value">00:00:00</span>
+        </div>
+      </div>
+
+      <div class="transport-controls">
+        <button class="toolbar-btn">Cycle</button>
+        <button class="toolbar-btn">Metronome</button>
+        <button class="toolbar-btn">Count-in</button>
+      </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+      <!-- Inspector Sidebar -->
+      <div class="inspector-sidebar">
+        <div class="inspector-header">
+          <div class="inspector-tab active">Region</div>
+          <div class="inspector-tab">Track</div>
+          <div class="inspector-tab">Smart</div>
+        </div>
+        <div class="inspector-content">
+          <div class="inspector-section">
+            <div class="inspector-section-header">
+              <span>Quick Help</span>
+            </div>
+            <div class="inspector-section-body">
+              <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+                Select a region to edit its parameters. Use the AI panel to apply intelligent mixing.
+              </div>
+            </div>
+          </div>
+
+          <div class="inspector-section">
+            <div class="inspector-section-header">
+              <span>Audio FX</span>
+              <span style="font-size: 10px; color: var(--text-muted);">Inserts</span>
+            </div>
+            <div class="inspector-section-body">
+              <div class="plugin-slot active">
+                <div class="plugin-icon eq"></div>
+                <span>Channel EQ</span>
+              </div>
+              <div class="plugin-slot active">
+                <div class="plugin-icon comp"></div>
+                <span>Compressor</span>
+              </div>
+              <div class="plugin-slot">
+                <div class="plugin-icon reverb"></div>
+                <span>Space Designer</span>
+              </div>
+              <div class="plugin-slot">
+                <div class="plugin-icon delay"></div>
+                <span>Stereo Delay</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspector-section">
+            <div class="inspector-section-header">
+              <span>MIDI FX</span>
+            </div>
+            <div class="inspector-section-body">
+              <div class="plugin-slot">
+                <span style="font-size: 11px; color: var(--text-muted);">No MIDI FX</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspector-section">
+            <div class="inspector-section-header">
+              <span>Region Parameters</span>
+            </div>
+            <div class="inspector-section-body">
+              <div class="param-row">
+                <span class="param-label">Quantize</span>
+                <span class="param-value">Off</span>
+              </div>
+              <div class="param-row">
+                <span class="param-label">Transpose</span>
+                <span class="param-value">0 st</span>
+              </div>
+              <div class="param-row">
+                <span class="param-label">Velocity</span>
+                <span class="param-value">100%</span>
+              </div>
+              <div class="param-row">
+                <span class="param-label">Delay</span>
+                <span class="param-value">0 ms</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrange Area -->
+      <div class="arrange-area">
+        <!-- Ruler -->
+        <div class="ruler">
+          <span class="ruler-mark">1</span>
+          <span class="ruler-mark">5</span>
+          <span class="ruler-mark">9</span>
+          <span class="ruler-mark">13</span>
+          <span class="ruler-mark">17</span>
+          <span class="ruler-mark">21</span>
+          <span class="ruler-mark">25</span>
+          <span class="ruler-mark">29</span>
+          <span class="ruler-mark">33</span>
+          <span class="ruler-mark">37</span>
+          <span class="ruler-mark">41</span>
+          <span class="ruler-mark">45</span>
+        </div>
+
+        <!-- Tracks -->
+        <div class="tracks-container">
+          <!-- Drums Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar drums"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Drums</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 65%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region drums" style="left: 0; width: 25%;">
+                <div class="region-name">Drum Loop 1</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 80%;"></div>
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                  <div class="region-waveform-bar" style="height: 90%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                </div>
+              </div>
+              <div class="region drums" style="left: 50%; width: 25%;">
+                <div class="region-name">Drum Fill</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 70%;"></div>
+                  <div class="region-waveform-bar" style="height: 100%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 80%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bass Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar bass"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Bass</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 45%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region bass" style="left: 0; width: 40%;">
+                <div class="region-name">Bass Line A</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 30%;"></div>
+                  <div class="region-waveform-bar" style="height: 70%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                </div>
+              </div>
+              <div class="region bass" style="left: 50%; width: 40%;">
+                <div class="region-name">Bass Line B</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                  <div class="region-waveform-bar" style="height: 70%;"></div>
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                  <div class="region-waveform-bar" style="height: 80%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drone Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar drone"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Drone</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 35%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region drone" style="left: 0; width: 100%;">
+                <div class="region-name">Ambient Drone</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 30%;"></div>
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                  <div class="region-waveform-bar" style="height: 35%;"></div>
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                  <div class="region-waveform-bar" style="height: 30%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pads Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar pads"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Pads</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 55%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region pads" style="left: 0; width: 50%;">
+                <div class="region-name">Emin Pad</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                  <div class="region-waveform-bar" style="height: 55%;"></div>
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                </div>
+              </div>
+              <div class="region pads" style="left: 50%; width: 50%;">
+                <div class="region-name">Emin Pad 2</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                  <div class="region-waveform-bar" style="height: 55%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Keys Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar keys"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Keys</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 40%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region keys" style="left: 12.5%; width: 25%;">
+                <div class="region-name">Arp 1</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 35%;"></div>
+                  <div class="region-waveform-bar" style="height: 55%;"></div>
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                </div>
+              </div>
+              <div class="region keys" style="left: 50%; width: 25%;">
+                <div class="region-name">Arp 2</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                  <div class="region-waveform-bar" style="height: 55%;"></div>
+                  <div class="region-waveform-bar" style="height: 40%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Melody Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar melody"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Melody</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 50%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region melody" style="left: 25%; width: 25%;">
+                <div class="region-name">Melody A</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 55%;"></div>
+                  <div class="region-waveform-bar" style="height: 70%;"></div>
+                  <div class="region-waveform-bar" style="height: 45%;"></div>
+                  <div class="region-waveform-bar" style="height: 65%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                </div>
+              </div>
+              <div class="region melody" style="left: 62.5%; width: 25%;">
+                <div class="region-name">Melody B</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                  <div class="region-waveform-bar" style="height: 65%;"></div>
+                  <div class="region-waveform-bar" style="height: 55%;"></div>
+                  <div class="region-waveform-bar" style="height: 75%;"></div>
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vocal Track -->
+          <div class="track-row">
+            <div class="track-header">
+              <div class="track-color-bar vocal"></div>
+              <div class="track-controls">
+                <div class="track-name-row">
+                  <svg class="track-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <span class="track-name">Vocal</span>
+                </div>
+                <div class="track-buttons">
+                  <button class="track-btn mute active">M</button>
+                  <button class="track-btn solo">S</button>
+                  <button class="track-btn record">R</button>
+                </div>
+              </div>
+              <div class="track-meter">
+                <div class="meter-fill" style="height: 60%;"></div>
+              </div>
+            </div>
+            <div class="track-region-area">
+              <div class="region vocal" style="left: 12.5%; width: 50%;">
+                <div class="region-name">Verse Vocals</div>
+                <div class="region-waveform">
+                  <div class="region-waveform-bar" style="height: 60%;"></div>
+                  <div class="region-waveform-bar" style="height: 80%;"></div>
+                  <div class="region-waveform-bar" style="height: 50%;"></div>
+                  <div class="region-waveform-bar" style="height: 90%;"></div>
+                  <div class="region-waveform-bar" style="height: 70%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Controls -->
+        <div class="smart-controls">
+          <div class="smart-controls-header">
+            <div class="smart-controls-title">Smart Controls</div>
+            <div class="smart-controls-tabs">
+              <div class="smart-tab active">Controls</div>
+              <div class="smart-tab">EQ</div>
+              <div class="smart-tab">Dynamics</div>
+              <div class="smart-tab">Reverb</div>
+            </div>
+          </div>
+          <div class="smart-controls-content">
+            <div class="smart-knob-group">
+              <div class="smart-knob" style="--knob-angle: 120deg;"></div>
+              <span class="smart-knob-label">Drive</span>
+              <span class="smart-knob-value">35%</span>
+            </div>
+            <div class="smart-knob-group">
+              <div class="smart-knob" style="--knob-angle: 180deg;"></div>
+              <span class="smart-knob-label">Tone</span>
+              <span class="smart-knob-value">50%</span>
+            </div>
+            <div class="smart-knob-group">
+              <div class="smart-knob" style="--knob-angle: 90deg;"></div>
+              <span class="smart-knob-label">Output</span>
+              <span class="smart-knob-value">25%</span>
+            </div>
+            <div class="smart-knob-group">
+              <div class="smart-knob" style="--knob-angle: 200deg;"></div>
+              <span class="smart-knob-label">Mix</span>
+              <span class="smart-knob-value">65%</span>
+            </div>
+            <div class="smart-knob-group">
+              <div class="smart-knob" style="--knob-angle: 150deg;"></div>
+              <span class="smart-knob-label">Width</span>
+              <span class="smart-knob-value">45%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Panel -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <div class="ai-title">AI Mixing Assistant</div>
+          <div class="ai-subtitle">Powered by MiniMax M2.7</div>
+        </div>
+
+        <div class="ai-messages" id="ai-messages">
+          <div class="message ai">
+            Hi! I'm your AI mixing co-pilot integrated into Logic Pro. Describe what you want to hear, and I'll apply the right FX chains to each track. Try commands like "make vocals punchier" or "add warmth to the mix."
+          </div>
+        </div>
+
+        <div class="ai-input-area">
+          <div class="quick-prompts">
+            <button class="quick-prompt" onclick="sendQuickPrompt('Make vocals cut through the mix')">Vocals cut</button>
+            <button class="quick-prompt" onclick="sendQuickPrompt('Add warmth and analog feel')">Add warmth</button>
+            <button class="quick-prompt" onclick="sendQuickPrompt('Tighten the drums and add punch')">Tighten drums</button>
+            <button class="quick-prompt" onclick="sendQuickPrompt('Widen the stereo field')">Widen stereo</button>
+            <button class="quick-prompt" onclick="mixEverything()" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(168, 85, 247, 0.15)); border-color: rgba(34, 211, 238, 0.3); color: var(--accent-cyan);">✦ Mix Everything</button>
+          </div>
+
+          <div class="ai-input-wrapper">
+            <input type="text" class="ai-input" id="ai-input" placeholder="Tell me what you want..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button class="ai-send" id="ai-send" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isPlaying = false;
+    let currentTrack = 'vocal';
+    let aiMixed = false;
+
+    // Audio playback
+    const audio = new Audio('../assets/unmix.wav');
+    audio.loop = true;
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('play-btn');
+      btn.textContent = isPlaying ? '⏸' : '▶';
+      btn.classList.toggle('active', isPlaying);
+
+      document.querySelectorAll('.meter-fill').forEach(meter => {
+        meter.style.animation = isPlaying ? 'meterGlow 0.3s ease-in-out infinite' : 'none';
+      });
+
+      if (isPlaying) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+
+    function switchToAIMix() {
+      if (aiMixed) return;
+      aiMixed = true;
+      const wasPlaying = isPlaying;
+      audio.pause();
+      audio.src = '../assets/mix.wav';
+      audio.load();
+      if (wasPlaying) {
+        audio.play();
+      }
+    }
+
+    function resetDemo() {
+      isPlaying = false;
+      const btn = document.getElementById('play-btn');
+      btn.textContent = '▶';
+      btn.classList.remove('active');
+      document.querySelectorAll('.meter-fill').forEach(meter => {
+        meter.style.animation = 'none';
+      });
+
+      audio.pause();
+      if (aiMixed) {
+        aiMixed = false;
+        audio.src = '../assets/unmix.wav';
+        audio.load();
+      }
+
+      const chat = document.getElementById('ai-messages');
+      chat.innerHTML = '<div class="message ai">Demo reset! Try another mixing command.</div>';
+      document.getElementById('ai-input').value = '';
+    }
+
+    function mixEverything() {
+      document.getElementById('ai-input').value = 'Mix everything';
+      sendMessage();
+    }
+
+    function sendQuickPrompt(text) {
+      document.getElementById('ai-input').value = text;
+      sendMessage();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('ai-input');
+      const sendBtn = document.getElementById('ai-send');
+      const chat = document.getElementById('ai-messages');
+
+      const message = input.value.trim();
+      if (!message) return;
+
+      input.disabled = true;
+      sendBtn.disabled = true;
+      chat.innerHTML += `<div class="message user">${escapeHtml(message)}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+      const typingId = 'typing-' + Date.now();
+      chat.innerHTML += `
+        <div class="message ai" id="${typingId}">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      chat.scrollTop = chat.scrollHeight;
+
+      const SUPABASE_URL = 'https://iikrvgjfkuijcpvdwzvv.supabase.co';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+
+        document.getElementById(typingId).remove();
+
+        if (data.error) {
+          chat.innerHTML += `<div class="message ai">Error: ${escapeHtml(data.error)}</div>`;
+          chat.scrollTop = chat.scrollHeight;
+          input.disabled = false;
+          sendBtn.disabled = false;
+          input.value = '';
+          input.focus();
+          return;
+        }
+
+        let aiResponseHTML = `<div class="message ai">`;
+        aiResponseHTML += `<div>I'll apply those changes to your Logic Pro mix.</div>`;
+
+        if (data.reasoning) {
+          aiResponseHTML += `
+            <div class="reasoning-block">
+              <div class="reasoning-title">NeuralMix Brain</div>
+              <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5;">${escapeHtml(data.reasoning)}</div>
+            </div>
+          `;
+        }
+
+        aiResponseHTML += `<div class="fx-list">`;
+
+        Object.entries(data.trackUpdates || {}).forEach(([trackId, fxList]) => {
+          fxList.forEach(fx => {
+            const paramsHtml = Object.entries(fx.params)
+              .map(([k, v]) => `<span class="param-chip">${k}: ${v}</span>`)
+              .join('');
+
+            aiResponseHTML += `
+              <div class="fx-item">
+                <span class="fx-track-name">${trackId}</span>
+                <span class="fx-effect-name">${fx.name}</span>
+                <div class="fx-params">${paramsHtml}</div>
+              </div>
+            `;
+          });
+        });
+
+        aiResponseHTML += `</div></div>`;
+
+        chat.innerHTML += aiResponseHTML;
+        chat.scrollTop = chat.scrollHeight;
+
+        // Switch to mixed audio when FX are applied
+        if (data.trackUpdates && Object.keys(data.trackUpdates).length > 0) {
+          switchToAIMix();
+        }
+      } catch (error) {
+        document.getElementById(typingId).remove();
+        chat.innerHTML += `<div class="message ai">Sorry, I encountered an error. Please try again. (${error.message})</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.value = '';
+      input.focus();
+    }
+  </script>
+</body>
+</html>

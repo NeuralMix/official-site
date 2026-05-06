@@ -328,17 +328,27 @@
       color: var(--text-muted);
     }
 
+    .daw-logo-link {
+      display: inline-block;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .daw-logo-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .daw-logo-link:hover .daw-logo {
+      opacity: 1;
+      filter: brightness(1.4);
+    }
+
     .daw-logo {
       height: 28px;
       width: auto;
       opacity: 0.7;
       filter: brightness(1.2);
       transition: all var(--duration-fast) var(--ease-out);
-    }
-
-    .daw-logo:hover {
-      opacity: 1;
-      transform: translateY(-2px);
+      display: block;
     }
 
     .demo-cta-section {
@@ -600,13 +610,16 @@
     <div class="nav-inner">
       <a href="#" class="logo">
         <div class="logo-icon">
-          <img src="assets/logo.png" alt="NeuralMix">
+          <img src="assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
         </div>
         NeuralMix
       </a>
       <div class="nav-links">
         <a href="#features" class="nav-link">Features</a>
         <a href="demo.html" class="nav-link">Demo</a>
+        <a href="demo-ableton/index.html" class="nav-link">Ableton</a>
+        <a href="demo-logic/index.html" class="nav-link">Logic</a>
+        <a href="demo-fl/index.html" class="nav-link">FL Studio</a>
       </div>
     </div>
   </nav>
@@ -645,9 +658,15 @@
 
       <div class="trust-badges">
         <span class="trust-label">Works inside</span>
-        <img src="ableton-logo.webp" alt="Ableton" class="daw-logo">
-        <img src="logic-logo.png" alt="Logic Pro" class="daw-logo">
-        <img src="fl-studio-logo.png" alt="FL Studio" class="daw-logo">
+        <a href="demo-ableton/index.html" class="daw-logo-link" title="Try Ableton Demo">
+          <img src="ableton-logo.webp" alt="Ableton" class="daw-logo">
+        </a>
+        <a href="demo-logic/index.html" class="daw-logo-link" title="Try Logic Pro Demo">
+          <img src="logic-logo.png" alt="Logic Pro" class="daw-logo">
+        </a>
+        <a href="demo-fl/index.html" class="daw-logo-link" title="Try FL Studio Demo">
+          <img src="fl-studio-logo.png" alt="FL Studio" class="daw-logo">
+        </a>
       </div>
 
       <div class="demo-cta-section">

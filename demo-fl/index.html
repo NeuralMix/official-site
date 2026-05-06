@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuralMix — FL Studio AI Integration Demo</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%2322d3ee'/><path d='M25 70 L25 30 L40 55 L55 20 L70 50 L75 30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* FL Studio Dark Theme Colors */
+      --fl-bg: #1e2a33;
+      --fl-bg-dark: #18232a;
+      --fl-bg-darker: #141d23;
+      --fl-bg-panel: #24333d;
+      --fl-bg-elevated: #2a3b47;
+      --fl-border: #3a4f5c;
+      --fl-border-light: #4a6270;
+      --fl-grid-line: #2a3d47;
+      --fl-grid-beat: #334a57;
+      --fl-grid-bar: #3d5866;
+      
+      /* Track Colors - FL Style (muted/pastel like screenshot) */
+      --track-percussion: #a05080;
+      --track-drums: #5a8a9a;
+      --track-clap: #6a9a6a;
+      --track-hat: #5a9a8a;
+      --track-pads: #8a5a7a;
+      --track-automation: #5a6a8a;
+      --track-bass: #8a6a5a;
+      --track-chords: #7a6a5a;
+      --track-ambiance: #6a5a8a;
+      --track-foley: #5a8a7a;
+      --track-synth: #8a7a5a;
+      --track-fx: #7a8a6a;
+      --track-riser: #6a5a8a;
+      
+      /* Text Colors */
+      --text-primary: #c8d4dc;
+      --text-secondary: #8a9aa6;
+      --text-muted: #5a6a76;
+      --text-dark: #3a4a56;
+      
+      /* Accent */
+      --accent-orange: #f4a261;
+      --accent-cyan: #22d3ee;
+      --accent-green: #34d399;
+      --playhead: #4ade80;
+      
+      /* Transport */
+      --transport-bg: #24333d;
+      
+      /* Animation */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+      50% { box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1); }
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-3px); }
+    }
+
+    @keyframes playheadMove {
+      from { left: 0; }
+      to { left: 100%; }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--fl-bg-dark);
+      color: var(--text-primary);
+      line-height: 1.4;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .fl-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Menu Bar */
+    .menu-bar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 12px;
+      background: var(--fl-bg-panel);
+      border-bottom: 1px solid var(--fl-border);
+      font-size: 11px;
+      height: 28px;
+    }
+
+    .menu-item {
+      padding: 4px 10px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    /* Transport Bar */
+    .transport-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px;
+      background: var(--transport-bg);
+      border-bottom: 1px solid var(--fl-border);
+      font-size: 12px;
+    }
+
+    .transport-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .logo-icon a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .logo-icon a:hover {
+      opacity: 0.8;
+    }
+
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .transport-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .transport-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .transport-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .transport-btn {
+      padding: 5px 12px;
+      background: var(--fl-bg-panel);
+      border: 1px solid var(--fl-border);
+      border-radius: 3px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .transport-btn:hover {
+      background: var(--fl-bg-elevated);
+      border-color: var(--fl-border-light);
+    }
+
+    .transport-btn.primary {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: var(--fl-bg-dark);
+      font-weight: 600;
+    }
+
+    .transport-btn.primary:hover {
+      background: #5ee88a;
+    }
+
+    .transport-btn.active {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: var(--fl-bg-dark);
+    }
+
+    .time-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 1px;
+    }
+
+    .bpm-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent-orange);
+      background: var(--fl-bg-dark);
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid var(--fl-border);
+    }
+
+    .neural-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px 4px 6px;
+      background: rgba(34, 211, 238, 0.12);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent-cyan);
+    }
+
+    .neural-badge-logo {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .neural-badge-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 12px;
+      background: var(--fl-bg-dark);
+      border-bottom: 1px solid var(--fl-border);
+      font-size: 11px;
+    }
+
+    .tab {
+      padding: 5px 14px;
+      background: var(--fl-bg-panel);
+      border: 1px solid var(--fl-border);
+      border-radius: 3px 3px 0 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+    }
+
+    .tab.active {
+      background: var(--fl-bg-elevated);
+      color: var(--text-primary);
+      border-bottom-color: var(--fl-bg-elevated);
+    }
+
+    /* Main Layout */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Arrangement View */
+    .arrangement-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Timeline Ruler */
+    .timeline-ruler {
+      display: flex;
+      height: 24px;
+      background: var(--fl-bg-panel);
+      border-bottom: 1px solid var(--fl-border);
+      padding-left: 148px;
+      position: relative;
+    }
+
+    .ruler-marks {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    .ruler-bar {
+      position: absolute;
+      top: 0;
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      padding-top: 4px;
+      border-left: 1px solid var(--fl-border);
+      height: 100%;
+    }
+
+    .ruler-bar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 1px;
+      height: 6px;
+      background: var(--fl-border-light);
+    }
+
+    /* Track List + Grid */
+    .tracks-wrapper {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .track-list {
+      width: 148px;
+      background: var(--fl-bg-dark);
+      border-right: 1px solid var(--fl-border);
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .track-channel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      height: 42px;
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+      font-size: 11px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .track-channel:hover {
+      filter: brightness(1.1);
+    }
+
+    .track-channel.percussion { background: var(--track-percussion); }
+    .track-channel.drums { background: var(--track-drums); }
+    .track-channel.clap { background: var(--track-clap); }
+    .track-channel.hat { background: var(--track-hat); }
+    .track-channel.pads { background: var(--track-pads); }
+    .track-channel.automation { background: var(--track-automation); }
+    .track-channel.bass { background: var(--track-bass); }
+    .track-channel.chords { background: var(--track-chords); }
+    .track-channel.ambiance { background: var(--track-ambiance); }
+    .track-channel.foley { background: var(--track-foley); }
+    .track-channel.synth { background: var(--track-synth); }
+    .track-channel.fx { background: var(--track-fx); }
+    .track-channel.riser { background: var(--track-riser); }
+
+    .track-icon {
+      width: 12px;
+      height: 12px;
+      opacity: 0.7;
+    }
+
+    .track-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-mute {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4ade80;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .track-mute.muted {
+      background: var(--text-dark);
+    }
+
+    /* Arrangement Grid */
+    .arrangement-grid {
+      flex: 1;
+      overflow: auto;
+      position: relative;
+      background: var(--fl-bg);
+    }
+
+    .grid-content {
+      position: relative;
+      min-width: 2000px;
+      height: 100%;
+    }
+
+    /* Grid Lines */
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .grid-bar-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--fl-grid-bar);
+    }
+
+    .grid-beat-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--fl-grid-beat);
+    }
+
+    /* Track Rows */
+    .track-rows {
+      position: relative;
+    }
+
+    .track-row {
+      height: 42px;
+      border-bottom: 1px solid var(--fl-grid-line);
+      position: relative;
+    }
+
+    /* Clips */
+    .clip {
+      position: absolute;
+      height: 32px;
+      top: 5px;
+      border-radius: 2px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.9);
+      padding: 2px 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .clip:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .clip.percussion { background: rgba(160, 80, 128, 0.85); border: 1px solid rgba(160, 80, 128, 1); }
+    .clip.drums { background: rgba(90, 138, 154, 0.85); border: 1px solid rgba(90, 138, 154, 1); }
+    .clip.clap { background: rgba(106, 154, 106, 0.85); border: 1px solid rgba(106, 154, 106, 1); }
+    .clip.hat { background: rgba(90, 154, 138, 0.85); border: 1px solid rgba(90, 154, 138, 1); }
+    .clip.pads { background: rgba(138, 90, 122, 0.85); border: 1px solid rgba(138, 90, 122, 1); }
+    .clip.automation { background: rgba(90, 106, 138, 0.85); border: 1px solid rgba(90, 106, 138, 1); }
+    .clip.bass { background: rgba(138, 106, 90, 0.85); border: 1px solid rgba(138, 106, 90, 1); }
+    .clip.chords { background: rgba(122, 106, 90, 0.85); border: 1px solid rgba(122, 106, 90, 1); }
+    .clip.ambiance { background: rgba(106, 90, 138, 0.85); border: 1px solid rgba(106, 90, 138, 1); }
+    .clip.foley { background: rgba(90, 138, 122, 0.85); border: 1px solid rgba(90, 138, 122, 1); }
+    .clip.synth { background: rgba(138, 122, 90, 0.85); border: 1px solid rgba(138, 122, 90, 1); }
+    .clip.fx { background: rgba(122, 138, 106, 0.85); border: 1px solid rgba(122, 138, 106, 1); }
+    .clip.riser { background: rgba(106, 90, 138, 0.85); border: 1px solid rgba(106, 90, 138, 1); }
+
+    .clip-waveform {
+      position: absolute;
+      inset: 2px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* Playhead */
+    .playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--playhead);
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+      transition: left 0.1s linear;
+    }
+
+    .playhead::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: -5px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--playhead);
+    }
+
+    /* AI Panel */
+    .ai-panel {
+      width: 380px;
+      background: var(--fl-bg-dark);
+      border-left: 1px solid var(--fl-border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-header {
+      padding: 16px;
+      background: var(--fl-bg-panel);
+      border-bottom: 1px solid var(--fl-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ai-header-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .ai-header-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ai-title-wrap {
+      flex: 1;
+    }
+
+    .ai-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .ai-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 90%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--accent-green);
+      color: var(--fl-bg-dark);
+      font-weight: 500;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: var(--fl-bg-panel);
+      border: 1px solid var(--fl-border);
+      color: var(--text-primary);
+    }
+
+    .message.ai .reasoning-block {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(244, 162, 97, 0.1);
+      border-radius: 6px;
+      border-left: 2px solid var(--accent-orange);
+    }
+
+    .message.ai .reasoning-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .message.ai .fx-list {
+      margin-top: 10px;
+    }
+
+    .message.ai .fx-item {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--fl-border);
+      font-size: 11px;
+    }
+
+    .message.ai .fx-item:last-child {
+      border-bottom: none;
+    }
+
+    .message.ai .fx-track-name {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+    }
+
+    .message.ai .fx-effect-name {
+      color: var(--accent-cyan);
+      font-weight: 500;
+    }
+
+    .message.ai .fx-params {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .message.ai .param-chip {
+      padding: 2px 6px;
+      background: var(--fl-bg);
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 3px;
+      padding: 8px 0;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .ai-input-area {
+      padding: 12px 16px;
+      background: var(--fl-bg-panel);
+      border-top: 1px solid var(--fl-border);
+    }
+
+    .quick-prompts {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .quick-prompt {
+      padding: 6px 10px;
+      background: var(--fl-bg);
+      border: 1px solid var(--fl-border);
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .quick-prompt:hover {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .ai-input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 10px 12px;
+      background: var(--fl-bg);
+      border: 1px solid var(--fl-border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .ai-input:focus {
+      border-color: var(--accent-green);
+    }
+
+    .ai-input::placeholder {
+      color: var(--text-dark);
+    }
+
+    .ai-send {
+      padding: 10px 16px;
+      background: var(--accent-green);
+      border: none;
+      border-radius: 4px;
+      color: var(--fl-bg-dark);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-send:hover {
+      background: #5ee88a;
+    }
+
+    .ai-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .ai-mix-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
+      border: 1px solid rgba(34, 211, 238, 0.4);
+      border-radius: 4px;
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .ai-mix-btn:hover {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(168, 85, 247, 0.35));
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .ai-panel { width: 320px; }
+    }
+
+    @media (max-width: 900px) {
+      .ai-panel { width: 280px; }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--fl-bg-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--fl-border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--fl-border-light);
+    }
+  </style>
+</head>
+<body>
+  <div class="fl-container">
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+      <div class="menu-item">FILE</div>
+      <div class="menu-item">EDIT</div>
+      <div class="menu-item">ADD</div>
+      <div class="menu-item">PATTERNS</div>
+      <div class="menu-item">VIEW</div>
+      <div class="menu-item">OPTIONS</div>
+      <div class="menu-item">TOOLS</div>
+      <div class="menu-item">HELP</div>
+    </div>
+
+    <!-- Transport Bar -->
+    <div class="transport-bar">
+      <div class="transport-left">
+        <div class="logo-icon">
+          <a href="../index.html" title="Back to Home">
+            <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+          </a>
+        </div>
+        <div class="transport-section">
+          <span class="transport-label">SONG</span>
+        </div>
+        <div class="transport-section">
+          <button class="transport-btn" id="stop-btn">■</button>
+        </div>
+        <div class="transport-section">
+          <button class="transport-btn primary" id="play-btn" onclick="togglePlay()">▶</button>
+        </div>
+        <div class="transport-section">
+          <span class="bpm-display">115.000</span>
+        </div>
+        <div class="transport-section">
+          <span class="time-display" id="time-display">19:01:06</span>
+        </div>
+        <div class="transport-section">
+          <button class="transport-btn" onclick="resetDemo()">↺ Reset</button>
+        </div>
+      </div>
+      
+      <div class="neural-badge">
+        <div class="neural-badge-logo">
+          <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+        </div>
+        <span>NeuralMix AI Copilot</span>
+      </div>
+      
+      <div class="transport-section">
+        <span class="transport-label">CPU</span>
+        <span class="transport-value">12%</span>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab">Playlist - Arrangement</div>
+      <div class="tab active">Playlist - Arrangement ▸ Percussion</div>
+      <div class="tab">Channel Rack</div>
+      <div class="tab">Piano roll</div>
+      <div class="tab">Mixer</div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+      <!-- Arrangement View -->
+      <div class="arrangement-view">
+        <!-- Timeline Ruler -->
+        <div class="timeline-ruler">
+          <div class="ruler-marks" id="ruler-marks"></div>
+        </div>
+
+        <!-- Tracks -->
+        <div class="tracks-wrapper">
+          <!-- Track List (Left Sidebar) -->
+          <div class="track-list" id="track-list"></div>
+
+          <!-- Arrangement Grid -->
+          <div class="arrangement-grid" id="arrangement-grid">
+            <div class="grid-content" id="grid-content">
+              <div class="grid-lines" id="grid-lines"></div>
+              <div class="track-rows" id="track-rows"></div>
+              <div class="playhead" id="playhead" style="left: 320px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Panel -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <div class="ai-header-logo">
+            <img src="../assets/neuralmix-logo/neuralmix-logo-dark-nobg.svg" alt="NeuralMix">
+          </div>
+          <div class="ai-title-wrap">
+            <div class="ai-title">AI Mixing Assistant</div>
+            <div class="ai-subtitle">Powered by MiniMax M2.7</div>
+          </div>
+        </div>
+
+        <div class="ai-messages" id="ai-messages">
+          <div class="message ai">
+            Hey! I'm your NeuralMix AI co-pilot inside FL Studio. I can hear every stem in your project and dial in the perfect FX chains. Try asking me to "make the percussion cut through" or hit <strong>✦ Mix Everything</strong> to let me work my magic.
+          </div>
+        </div>
+
+        <div class="ai-input-area">
+          <div class="quick-prompts">
+            <button class="quick-prompt" onclick="sendQuickPrompt('Make percussion cut through')">Cut through</button>
+            <button class="quick-prompt" onclick="sendQuickPrompt('Add warmth to the mix')">Add warmth</button>
+            <button class="quick-prompt" onclick="sendQuickPrompt('Tighten drums')">Tighten drums</button>
+            <button class="quick-prompt" onclick="sendQuickPrompt('Widen stereo field')">Widen stereo</button>
+          </div>
+          
+          <div class="ai-input-wrapper">
+            <input type="text" class="ai-input" id="ai-input" placeholder="Ask NeuralMix..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button class="ai-send" id="ai-send" onclick="sendMessage()">Send</button>
+          </div>
+          
+          <button class="ai-mix-btn" id="mix-btn" onclick="mixEverything()">✦ Mix Everything</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Track definitions matching FL Studio screenshot
+    const tracks = [
+      { id: 'percussion', name: 'Percussion', type: 'audio', color: 'percussion' },
+      { id: 'drums', name: 'Drums', type: 'audio', color: 'drums' },
+      { id: 'clap', name: 'Clap', type: 'audio', color: 'clap' },
+      { id: 'hat', name: 'Hat', type: 'audio', color: 'hat' },
+      { id: 'pads', name: 'Pads', type: 'audio', color: 'pads' },
+      { id: 'automation', name: 'Automation', type: 'automation', color: 'automation' },
+      { id: 'bass', name: 'Bass', type: 'audio', color: 'bass' },
+      { id: 'chords', name: 'Dub Chords', type: 'audio', color: 'chords' },
+      { id: 'ambiance', name: 'Ambiance', type: 'audio', color: 'ambiance' },
+      { id: 'foley', name: 'Footsteps Foley', type: 'audio', color: 'foley' },
+      { id: 'synth', name: 'Pads (Tension)', type: 'audio', color: 'synth' },
+      { id: 'fx', name: 'FX', type: 'audio', color: 'fx' },
+      { id: 'riser', name: 'Riser', type: 'audio', color: 'riser' },
+    ];
+
+    // Clip data matching the screenshot layout
+    const clips = [
+      // Percussion
+      { track: 'percussion', name: 'Perc Loop', start: 60, width: 80, color: 'percussion' },
+      // Drums
+      { track: 'drums', name: 'Drum Loop', start: 520, width: 480, color: 'drums' },
+      // Clap
+      { track: 'clap', name: 'Clap', start: 60, width: 40, color: 'clap' },
+      { track: 'clap', name: 'Clap', start: 140, width: 40, color: 'clap' },
+      // Hat
+      // Pads
+      { track: 'pads', name: 'Pads', start: 60, width: 240, color: 'pads' },
+      { track: 'pads', name: 'Pads', start: 340, width: 200, color: 'pads' },
+      { track: 'pads', name: 'Pads', start: 560, width: 220, color: 'pads' },
+      { track: 'pads', name: 'Pads', start: 800, width: 200, color: 'pads' },
+      // Automation
+      // Bass
+      { track: 'bass', name: 'Bass', start: 120, width: 180, color: 'bass' },
+      { track: 'bass', name: 'Bass', start: 340, width: 200, color: 'bass' },
+      { track: 'bass', name: 'Bass', start: 560, width: 200, color: 'bass' },
+      { track: 'bass', name: 'Bass', start: 800, width: 200, color: 'bass' },
+      // Chords
+      { track: 'chords', name: 'Dub Chords', start: 120, width: 60, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 220, width: 60, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 340, width: 40, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 420, width: 60, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 520, width: 40, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 620, width: 40, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 720, width: 40, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 820, width: 40, color: 'chords' },
+      { track: 'chords', name: 'Dub Chords', start: 920, width: 40, color: 'chords' },
+      // Ambiance
+      { track: 'ambiance', name: 'Water A...', start: 60, width: 80, color: 'ambiance' },
+      { track: 'ambiance', name: 'Water Ambience', start: 560, width: 220, color: 'ambiance' },
+      { track: 'ambiance', name: 'Water Ambience', start: 800, width: 200, color: 'ambiance' },
+      // Foley
+      { track: 'foley', name: 'Footst... Foley', start: 120, width: 100, color: 'foley' },
+      { track: 'foley', name: 'Footsteps Foley', start: 560, width: 440, color: 'foley' },
+      // Synth
+      { track: 'synth', name: 'Pads (Tension)', start: 120, width: 400, color: 'synth' },
+      // FX
+      { track: 'fx', name: '', start: 140, width: 40, color: 'fx' },
+      { track: 'fx', name: '', start: 280, width: 20, color: 'fx' },
+      { track: 'fx', name: '', start: 380, width: 40, color: 'fx' },
+      { track: 'fx', name: '', start: 480, width: 20, color: 'fx' },
+      { track: 'fx', name: '', start: 580, width: 40, color: 'fx' },
+      { track: 'fx', name: '', start: 740, width: 40, color: 'fx' },
+      // Riser
+      { track: 'riser', name: 'THM - Crash 10', start: 620, width: 40, color: 'riser' },
+      { track: 'riser', name: 'Industrial SFX 2', start: 920, width: 80, color: 'riser' },
+    ];
+
+    let isPlaying = false;
+    let playheadPos = 320;
+    let playInterval = null;
+    let aiMixed = false;
+
+    // Audio playback
+    const audio = new Audio('../assets/unmix.wav');
+    audio.loop = true;
+
+    // Build track list
+    function buildTrackList() {
+      const list = document.getElementById('track-list');
+      list.innerHTML = '';
+      tracks.forEach((track, i) => {
+        const div = document.createElement('div');
+        div.className = `track-channel ${track.color}`;
+        div.innerHTML = `
+          <svg class="track-icon" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="3" width="10" height="6" rx="1"/></svg>
+          <span class="track-name">${track.name}</span>
+          <div class="track-mute" id="mute-${track.id}"></div>
+        `;
+        div.onclick = () => toggleMute(track.id);
+        list.appendChild(div);
+      });
+    }
+
+    // Build grid lines
+    function buildGrid() {
+      const lines = document.getElementById('grid-lines');
+      const rows = document.getElementById('track-rows');
+      const ruler = document.getElementById('ruler-marks');
+      
+      // Ruler marks
+      for (let bar = 17; bar <= 40; bar++) {
+        const mark = document.createElement('div');
+        mark.className = 'ruler-bar';
+        mark.style.left = ((bar - 17) * 60) + 'px';
+        mark.textContent = bar;
+        ruler.appendChild(mark);
+        
+        // Bar lines
+        const barLine = document.createElement('div');
+        barLine.className = 'grid-bar-line';
+        barLine.style.left = ((bar - 17) * 60) + 'px';
+        lines.appendChild(barLine);
+        
+        // Beat lines
+        for (let beat = 1; beat < 4; beat++) {
+          const beatLine = document.createElement('div');
+          beatLine.className = 'grid-beat-line';
+          beatLine.style.left = ((bar - 17) * 60 + beat * 15) + 'px';
+          lines.appendChild(beatLine);
+        }
+      }
+      
+      // Track rows
+      tracks.forEach((track, i) => {
+        const row = document.createElement('div');
+        row.className = 'track-row';
+        row.dataset.track = track.id;
+        
+        // Add clips for this row
+        const trackClips = clips.filter(c => c.track === track.id);
+        trackClips.forEach(clip => {
+          const clipDiv = document.createElement('div');
+          clipDiv.className = `clip ${clip.color}`;
+          clipDiv.style.left = clip.start + 'px';
+          clipDiv.style.width = clip.width + 'px';
+          clipDiv.innerHTML = `<span>${clip.name}</span>`;
+          row.appendChild(clipDiv);
+        });
+        
+        rows.appendChild(row);
+      });
+    }
+
+    function toggleMute(trackId) {
+      const indicator = document.getElementById(`mute-${trackId}`);
+      indicator.classList.toggle('muted');
+    }
+
+    function togglePlay() {
+      const btn = document.getElementById('play-btn');
+      const playhead = document.getElementById('playhead');
+      
+      isPlaying = !isPlaying;
+      
+      if (isPlaying) {
+        btn.textContent = '⏸';
+        btn.classList.add('active');
+        audio.play();
+        playInterval = setInterval(() => {
+          playheadPos += 1;
+          if (playheadPos > 1400) playheadPos = 0;
+          playhead.style.left = playheadPos + 'px';
+          
+          // Update time display
+          const totalSeconds = 19 * 3600 + 1 * 60 + 6 + Math.floor(playheadPos / 10);
+          const h = Math.floor(totalSeconds / 3600);
+          const m = Math.floor((totalSeconds % 3600) / 60);
+          const s = totalSeconds % 60;
+          document.getElementById('time-display').textContent = 
+            `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }, 50);
+      } else {
+        btn.textContent = '▶';
+        btn.classList.remove('active');
+        audio.pause();
+        clearInterval(playInterval);
+      }
+    }
+
+    function switchToAIMix() {
+      if (aiMixed) return;
+      aiMixed = true;
+      const wasPlaying = isPlaying;
+      audio.pause();
+      audio.src = '../assets/mix.wav';
+      audio.load();
+      if (wasPlaying) {
+        audio.play();
+      }
+    }
+
+    function resetDemo() {
+      isPlaying = false;
+      clearInterval(playInterval);
+      playheadPos = 320;
+      document.getElementById('playhead').style.left = playheadPos + 'px';
+      document.getElementById('play-btn').textContent = '▶';
+      document.getElementById('play-btn').classList.remove('active');
+      document.getElementById('time-display').textContent = '19:01:06';
+      
+      // Reset audio
+      audio.pause();
+      if (aiMixed) {
+        aiMixed = false;
+        audio.src = '../assets/unmix.wav';
+        audio.load();
+      }
+      
+      // Reset messages
+      document.getElementById('ai-messages').innerHTML = `
+        <div class="message ai">
+          Hey! I'm your NeuralMix AI co-pilot inside FL Studio. I can hear every stem in your project and dial in the perfect FX chains. Try asking me to "make the percussion cut through" or hit <strong>✦ Mix Everything</strong> to let me work my magic.
+        </div>
+      `;
+    }
+
+    // AI Chat functions
+    function addMessage(text, sender) {
+      const container = document.getElementById('ai-messages');
+      const msg = document.createElement('div');
+      msg.className = `message ${sender}`;
+      msg.innerHTML = text;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() {
+      const container = document.getElementById('ai-messages');
+      const typing = document.createElement('div');
+      typing.className = 'message ai typing';
+      typing.id = 'typing-indicator';
+      typing.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+      container.appendChild(typing);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById('typing-indicator');
+      if (typing) typing.remove();
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('ai-input');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      addMessage(text, 'user');
+      input.value = '';
+      
+      showTyping();
+      
+      setTimeout(() => {
+        hideTyping();
+        const response = generateResponse(text);
+        addMessage(response, 'ai');
+      }, 1500 + Math.random() * 1000);
+    }
+
+    function sendQuickPrompt(text) {
+      document.getElementById('ai-input').value = text;
+      sendMessage();
+    }
+
+    function mixEverything() {
+      const btn = document.getElementById('mix-btn');
+      btn.disabled = true;
+      btn.textContent = '✦ Mixing...';
+      
+      showTyping();
+      
+      setTimeout(() => {
+        hideTyping();
+        addMessage(`
+          <strong>Analysis complete!</strong> I've analyzed all 13 tracks in your FL Studio project. Here's what I dialed in:
+          <div class="fx-list">
+            <div class="fx-item"><span class="fx-track-name">Percussion</span> → <span class="fx-effect-name">Transient Shaper</span> <span class="fx-effect-name">+ Reverb</span><div class="fx-params"><span class="param-chip">Attack +12%</span><span class="param-chip">Sustain -8%</span><span class="param-chip">Room Size 24%</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Drums</span> → <span class="fx-effect-name">Drum Bus Compressor</span> <span class="fx-effect-name">+ Parallel Saturation</span><div class="fx-params"><span class="param-chip">Ratio 4:1</span><span class="param-chip">Drive 18%</span><span class="param-chip">Blend 35%</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Bass</span> → <span class="fx-effect-name">Fruity Parametric EQ 2</span> <span class="fx-effect-name">+ Maximus</span><div class="fx-params"><span class="param-chip">Low Cut 35Hz</span><span class="param-chip">Sidechain -6dB</span><span class="param-chip">Mono Below 120Hz</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Pads</span> → <span class="fx-effect-name">Fruity Reverb 2</span> <span class="fx-effect-name">+ Stereo Enhancer</span><div class="fx-params"><span class="param-chip">Width 145%</span><span class="param-chip">Pre-delay 45ms</span><span class="param-chip">HP Filter 250Hz</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Dub Chords</span> → <span class="fx-effect-name">Fruity Chorus</span> <span class="fx-effect-name">+ Fruity Delay 3</span><div class="fx-params"><span class="param-chip">Rate 0.4Hz</span><span class="param-chip">Feedback 22%</span><span class="param-chip">Ping-Pong</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Ambiance</span> → <span class="fx-effect-name">Fruity Reverb 2</span> <span class="fx-effect-name">+ Fruity Parametric EQ 2</span><div class="fx-params"><span class="param-chip">Damping 65%</span><span class="param-chip">Diffusion 80%</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">FX / Riser</span> → <span class="fx-effect-name">Fruity Waveshaper</span> <span class="fx-effect-name">+ Fruity Reverb 2</span><div class="fx-params"><span class="param-chip">Shape Sine</span><span class="param-chip">Mix 40%</span></div></div>
+          </div>
+          <div class="reasoning-block">
+            <div class="reasoning-title">🧠 Reasoning</div>
+            <div>I balanced the low-end by sidechaining bass to drums, gave percussion transient shaping to cut through the dub chords, widened pads with chorus and stereo enhancement, and created space for vocals with strategic EQ cuts. The riser got waveshaping for extra energy before the drop at bar 32.</div>
+          </div>
+        `, 'ai');
+        
+        // Animate clips to show processing
+        document.querySelectorAll('.clip').forEach((clip, i) => {
+          setTimeout(() => {
+            clip.style.filter = 'brightness(1.3)';
+            setTimeout(() => clip.style.filter = '', 400);
+          }, i * 80);
+        });
+        
+        // Switch to mixed audio
+        switchToAIMix();
+        
+        btn.disabled = false;
+        btn.textContent = '✦ Mix Everything';
+      }, 2500);
+    }
+
+    function generateResponse(text) {
+      const lower = text.toLowerCase();
+      if (lower.includes('percussion') || lower.includes('cut through')) {
+        return `
+          <strong>Got it!</strong> I'll make the percussion cut through the mix.
+          <div class="fx-list">
+            <div class="fx-item"><span class="fx-track-name">Percussion</span> → <span class="fx-effect-name">Fruity Parametric EQ 2</span> <span class="fx-effect-name">+ Transient Shaper</span><div class="fx-params"><span class="param-chip">High Shelf +4dB @ 6kHz</span><span class="param-chip">Attack +18%</span><span class="param-chip">Sustain -12%</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Drums</span> → <span class="fx-effect-name">Fruity Limiter</span> <span class="fx-effect-name">+ Stereo Enhancer</span><div class="fx-params"><span class="param-chip">Ceiling -1dB</span><span class="param-chip">Width 120%</span></div></div>
+          </div>
+          <div class="reasoning-block">
+            <div class="reasoning-title">🧠 Reasoning</div>
+            <div>Added a high-shelf boost to bring out the stick attack on percussion, tightened the sustain so it doesn't mask the pads, and gave the drum bus slight stereo width to create separation from the centered bass.</div>
+          </div>
+        `;
+      }
+      if (lower.includes('warmth') || lower.includes('analog')) {
+        return `
+          <strong>Warming things up!</strong> Adding analog character across the mix.
+          <div class="fx-list">
+            <div class="fx-item"><span class="fx-track-name">Bass</span> → <span class="fx-effect-name">Fruity Waveshaper</span> <span class="fx-effect-name">+ Fruity Parametric EQ 2</span><div class="fx-params"><span class="param-chip">Shape Soft Saturation</span><span class="param-chip">Drive 15%</span><span class="param-chip">Low Shelf +2dB</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Pads</span> → <span class="fx-effect-name">Fruity Chorus</span> <span class="fx-effect-name">+ Fruity Reverb 2</span><div class="fx-params"><span class="param-chip">Rate 0.3Hz</span><span class="param-chip">Depth 35%</span><span class="param-chip">Warm Hall</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Dub Chords</span> → <span class="fx-effect-name">Fruity Chorus</span> <span class="fx-effect-name">+ Tape Saturation</span><div class="fx-params"><span class="param-chip">Flutter 0.8%</span><span class="param-chip">Drive 10%</span></div></div>
+          </div>
+          <div class="reasoning-block">
+            <div class="reasoning-title">🧠 Reasoning</div>
+            <div>Soft saturation on bass adds harmonic richness without muddying the low end. Chorus on pads creates that vintage analog width. Tape-style saturation on chords emulates the classic dub warmth you're after.</div>
+          </div>
+        `;
+      }
+      if (lower.includes('drum') || lower.includes('tighten')) {
+        return `
+          <strong>Drums tightened!</strong> Adding punch and controlling the low end.
+          <div class="fx-list">
+            <div class="fx-item"><span class="fx-track-name">Drums</span> → <span class="fx-effect-name">Fruity Limiter</span> <span class="fx-effect-name">+ Maximus</span><div class="fx-params"><span class="param-chip">Ratio 6:1</span><span class="param-chip">Attack 5ms</span><span class="param-chip">Release 80ms</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Clap</span> → <span class="fx-effect-name">Fruity Reverb 2</span> <span class="fx-effect-name">+ Fruity Parametric EQ 2</span><div class="fx-params"><span class="param-chip">Pre-delay 25ms</span><span class="param-chip">High Pass 300Hz</span></div></div>
+          </div>
+          <div class="reasoning-block">
+            <div class="reasoning-title">🧠 Reasoning</div>
+            <div>Fast attack on the drum bus catches transients for punch, quick release maintains groove. High-passed reverb on clap keeps it tight while adding dimension. Maximus controls the full drum group with multiband precision.</div>
+          </div>
+        `;
+      }
+      if (lower.includes('stereo') || lower.includes('widen') || lower.includes('width')) {
+        return `
+          <strong>Widening the stereo field!</strong> Creating space across the mix.
+          <div class="fx-list">
+            <div class="fx-item"><span class="fx-track-name">Pads</span> → <span class="fx-effect-name">Fruity Stereo Enhancer</span> <span class="fx-effect-name">+ Fruity Chorus</span><div class="fx-params"><span class="param-chip">Width 160%</span><span class="param-chip">Rate 0.25Hz</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Ambiance</span> → <span class="fx-effect-name">Fruity Reverb 2</span> <span class="fx-effect-name">+ Stereo Delay</span><div class="fx-params"><span class="param-chip">Diffusion 90%</span><span class="param-chip">Width 180%</span></div></div>
+            <div class="fx-item"><span class="fx-track-name">Bass</span> → <span class="fx-effect-name">Fruity Stereo Enhancer</span><div class="fx-params"><span class="param-chip">Mono Below 100Hz</span><span class="param-chip">Width 105%</span></div></div>
+          </div>
+          <div class="reasoning-block">
+            <div class="reasoning-title">🧠 Reasoning</div>
+            <div>Maximizing stereo width on pads and ambiance for that immersive dub techno feel, while keeping bass mono below 100Hz for solid low-end anchoring. The result is a wide, spacious mix that still hits hard in the club.</div>
+          </div>
+        `;
+      }
+      return `
+        <strong>Mix adjustment applied!</strong> Based on your request, here's what I changed:
+        <div class="fx-list">
+          <div class="fx-item"><span class="fx-track-name">Master</span> → <span class="fx-effect-name">Fruity Limiter</span> <span class="fx-effect-name">+ Maximus</span><div class="fx-params"><span class="param-chip">Ceiling -0.3dB</span><span class="param-chip">Loudness -14 LUFS</span></div></div>
+          <div class="fx-item"><span class="fx-track-name">All Stems</span> → <span class="fx-effect-name">Fruity Balance</span> <span class="fx-effect-name">+ Fruity Parametric EQ 2</span><div class="fx-params"><span class="param-chip">Cohesion +15%</span><span class="param-chip">Crossfade 8ms</span></div></div>
+        </div>
+        <div class="reasoning-block">
+          <div class="reasoning-title">🧠 Reasoning</div>
+          <div>I analyzed the spectral balance across all tracks and applied gentle master limiting for loudness while preserving transients. Crossfades between clips are tightened for a cleaner arrangement feel.</div>
+        </div>
+      `;
+    }
+
+    // Init
+    buildTrackList();
+    buildGrid();
+  </script>
+</body>
+</html>
